@@ -23,6 +23,9 @@ dependencies:
   buttons_tabbar: ^1.3.10
   sqflite:
   url_launcher:
+  share_plus:
+  pdf:
+  printing:
   intl:
   image_picker:
   lottie: ^3.3.1
@@ -57,5 +60,9 @@ flutter:
   fonts:
     - family: cairo
       fonts:
+        - asset: assets/fonts/Cairo/static/Cairo-Regular.ttf
         - asset: assets/fonts/Cairo/static/Cairo-Bold.ttf
-
+          weight: 700
+    - family: tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Bold.ttf

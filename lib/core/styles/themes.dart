@@ -18,7 +18,7 @@ const Color appBackgroundColor = pageBackgroundColor;
 const Color appSurfaceColor = cardSurfaceColor;
 const Color appMutedSurfaceColor = mutedSurfaceColor;
 const Color appBorderColor = borderColor;
-const Color appTextPrimaryColor = Color(0xFF1A1A2E);
+const Color appTextPrimaryColor = Color(0xFF1B1B32);
 const Color appTextSecondaryColor = Color(0xFF2D2D44);
 const Color appTextMutedColor = secondTextColor;
 const Color appAccentColor = secondPrimaryColor;
@@ -57,7 +57,7 @@ class ThemeService {
   final lightTheme = ThemeData(
     scaffoldBackgroundColor: appBackgroundColor,
     primaryColor: primaryColor,
-    fontFamily: 'Cairo',
+    fontFamily: 'tajawal',
     brightness: Brightness.light,
     appBarTheme: const AppBarTheme(
       backgroundColor: appHeaderColor,

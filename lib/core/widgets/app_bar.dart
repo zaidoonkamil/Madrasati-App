@@ -349,7 +349,7 @@ class _BasketIconButtonState extends State<_BasketIconButton> {
       future: _basketCountFuture,
       builder: (context, snapshot) {
         return _AppBarIconButton(
-          icon: Iconsax.shopping_bag,
+          icon: Iconsax.shopping_cart,
           badgeCount: snapshot.data ?? 0,
           onTap: widget.onTap,
         );

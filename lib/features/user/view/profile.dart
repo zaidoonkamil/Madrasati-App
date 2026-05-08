@@ -103,7 +103,7 @@ class Profile extends StatelessWidget {
                                   accentColor: _accentGreen,
                                   onTap: () async {
                                     final uri = Uri.parse(
-                                      'https://wa.me/9647807530054',
+                                      'https://api.whatsapp.com/send/?phone=9647703272065&text&type=phone_number&app_absent=0',
                                     );
                                     final opened = await launchUrl(
                                       uri,

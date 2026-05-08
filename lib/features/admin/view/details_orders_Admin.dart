@@ -12,6 +12,8 @@ import '../../../core/widgets/app_bar.dart';
 import '../../../core/widgets/circular_progress.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
+import '../model/OrdersAgentModel.dart';
+import '../services/order_invoice_service.dart';
 
 class DetailsOrdersAdmin extends StatelessWidget {
   const DetailsOrdersAdmin({super.key, required this.status});
@@ -78,11 +80,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCard(
-    BuildContext context,
-    AdminCubit cubit,
-    dynamic order,
-  ) {
+  Widget _buildOrderCard(BuildContext context, AdminCubit cubit, Order order) {
     final formattedDate = DateFormat('yyyy/M/d').format(order.createdAt);
 
     return Container(
@@ -192,11 +190,65 @@ class DetailsOrdersAdmin extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        onTap:
+                            () =>
+                                const OrderInvoiceService().shareInvoice(order),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: appAccentColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.picture_as_pdf_rounded,
+                                color: appTextPrimaryColor,
+                                size: 17,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'فاتورة PDF',
+                                style: TextStyle(
+                                  color: appTextPrimaryColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-              Image.asset('assets/images/Group 142.png', fit: BoxFit.fill),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: appAccentColor.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: appAccentColor.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  color: appAccentColor,
+                  size: 24,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),

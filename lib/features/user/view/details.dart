@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/styles/themes.dart';
 import '../cubit/cubit.dart';
@@ -37,6 +38,7 @@ class Details extends StatelessWidget {
   });
 
   static int currentIndex = 0;
+  static final String _appShareLink = appShareLink;
 
   final String sellerId;
   final String id;
@@ -85,7 +87,7 @@ class Details extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _buildGallery(cubit, safeImages),
+                          _buildGallery(context, cubit, safeImages),
                           const SizedBox(height: 12),
                           _buildHeadline(context, number, stock),
                           if (token != '') ...[
@@ -124,7 +126,11 @@ class Details extends StatelessWidget {
 
   // ─── gallery, headline, actions — unchanged logic, kept as-is ───────────
 
-  Widget _buildGallery(UserCubit cubit, List<String> safeImages) {
+  Widget _buildGallery(
+    BuildContext context,
+    UserCubit cubit,
+    List<String> safeImages,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -134,44 +140,89 @@ class Details extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Hero(
-            tag: 'product-image-$id',
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child:
-                  safeImages.isEmpty
-                      ? Container(
-                        height: 300,
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 44,
-                          color: secondTextColor,
+          Stack(
+            children: [
+              Hero(
+                tag: 'product-image-$id',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child:
+                      safeImages.isEmpty
+                          ? Container(
+                            height: 300,
+                            color: Colors.grey.shade200,
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.image_not_supported_outlined,
+                              size: 44,
+                              color: secondTextColor,
+                            ),
+                          )
+                          : CarouselSlider(
+                            items:
+                                safeImages.map((entry) {
+                                  return Image.network(
+                                    '$url/uploads/$entry',
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  );
+                                }).toList(),
+                            options: CarouselOptions(
+                              height: 300,
+                              viewportFraction: 1,
+                              enlargeCenterPage: false,
+                              autoPlay: safeImages.length > 1,
+                              autoPlayInterval: const Duration(seconds: 5),
+                              onPageChanged: (index, reason) {
+                                currentIndex = index;
+                                cubit.slid();
+                              },
+                            ),
+                          ),
+                ),
+              ),
+              Positioned(
+                top: 12,
+                left: 12,
+                child: GestureDetector(
+                  onTap: () => _shareProduct(context),
+                  child: Container(
+                    height: 38,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: homeAccentColor.withValues(alpha: 0.96),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.12),
+                          blurRadius: 12,
+                          offset: const Offset(0, 5),
                         ),
-                      )
-                      : CarouselSlider(
-                        items:
-                            safeImages.map((entry) {
-                              return Image.network(
-                                '$url/uploads/$entry',
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              );
-                            }).toList(),
-                        options: CarouselOptions(
-                          height: 300,
-                          viewportFraction: 1,
-                          enlargeCenterPage: false,
-                          autoPlay: safeImages.length > 1,
-                          autoPlayInterval: const Duration(seconds: 5),
-                          onPageChanged: (index, reason) {
-                            currentIndex = index;
-                            cubit.slid();
-                          },
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.share_rounded,
+                          color: homeTextColor,
+                          size: 17,
                         ),
-                      ),
-            ),
+                        SizedBox(width: 5),
+                        Text(
+                          'مشاركة',
+                          style: TextStyle(
+                            color: homeTextColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           if (safeImages.length > 1) ...[
             const SizedBox(height: 12),
@@ -261,7 +312,7 @@ class Details extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      stock > 0 ? 'متوفر: $stock قطعة' : 'غير متوفر حالياً',
+                      stock > 0 ? 'متوفر ' : 'غير متوفر حالياً',
                       style: TextStyle(
                         color: stock > 0 ? secondPrimaryColor : dangerColor,
                         fontSize: 12,
@@ -417,6 +468,25 @@ class Details extends StatelessWidget {
           ),
         ),
       );
+  }
+
+  Future<void> _shareProduct(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final number = int.tryParse(price) ?? 0;
+    final shareText = '''
+$tittle
+السعر: ${NumberFormat('#,###').format(number)} دينار عراقي
+$_appShareLink
+''';
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: shareText.trim(),
+        subject: tittle,
+        sharePositionOrigin:
+            box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+      ),
+    );
   }
 }
 

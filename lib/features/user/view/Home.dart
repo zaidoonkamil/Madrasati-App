@@ -5,13 +5,17 @@ import 'package:madrasati_app/core/%20navigation/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/network/remote/dio_helper.dart';
 import '../../../core/styles/themes.dart';
 import '../../../core/widgets/app_bar.dart';
 import '../../../core/widgets/circular_progress.dart';
+import '../../../core/widgets/constant.dart';
+import '../../../core/widgets/show_toast.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
 import '../model/CatModel.dart';
@@ -90,6 +94,15 @@ class Home extends StatelessWidget {
                                         duration: 400.ms,
                                         curve: Curves.easeOutCubic,
                                       ),
+                                  _buildSocialLinks(context)
+                                      .animate()
+                                      .fadeIn(delay: 80.ms, duration: 260.ms)
+                                      .slideY(
+                                        begin: 0.16,
+                                        end: 0,
+                                        duration: 360.ms,
+                                        curve: Curves.easeOutCubic,
+                                      ),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(
                                       16,
@@ -118,16 +131,6 @@ class Home extends StatelessWidget {
                                               duration: 420.ms,
                                               curve: Curves.easeOutCubic,
                                             ),
-
-                                        const SizedBox(height: 14),
-
-                                        // ── Quick Stats Row ──
-                                        _buildQuickStats().animate().fadeIn(
-                                          delay: 120.ms,
-                                          duration: 300.ms,
-                                        ),
-
-                                        const SizedBox(height: 18),
 
                                         // ── Categories ──
                                         _buildSectionHeader(
@@ -175,7 +178,7 @@ class Home extends StatelessWidget {
                                                 const AllProductsPage(),
                                               ),
                                         ),
-                                        const SizedBox(height: 12),
+                                        const SizedBox(height: 14),
                                         _buildProducts(
                                               cubit,
                                               context,
@@ -287,6 +290,73 @@ class Home extends StatelessWidget {
   // ─────────────────────────────────────────────────────
   //  HERO BANNER (ADS CAROUSEL)
   // ─────────────────────────────────────────────────────
+  Widget _buildSocialLinks(BuildContext context) {
+    final whatsAppNumber =
+        phoneWoner.startsWith('964') ? phoneWoner : '964$phoneWoner';
+    final links = [
+      _SocialLink(
+        label: 'إنستغرام',
+        icon: FontAwesomeIcons.instagram,
+        color: const Color(0xFFE4405F),
+        url: 'https://www.instagram.com/madrasaty2019/',
+      ),
+      _SocialLink(
+        label: 'فيسبوك',
+        icon: FontAwesomeIcons.facebookF,
+        color: const Color(0xFF1877F2),
+        url: 'https://www.facebook.com/madrasatycenter',
+      ),
+      _SocialLink(
+        label: 'تيك توك',
+        icon: FontAwesomeIcons.tiktok,
+        color: Colors.white,
+        url: 'https://www.tiktok.com/@madrasaty2019',
+      ),
+      _SocialLink(
+        label: 'واتساب',
+        icon: FontAwesomeIcons.whatsapp,
+        color: const Color(0xFF25D366),
+        url:
+            'https://api.whatsapp.com/send/?phone=$whatsAppNumber&text&type=phone_number&app_absent=0',
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: const BoxDecoration(
+        color: homeTextColor,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
+      ),
+      child: Row(
+        children:
+            links
+                .map(
+                  (link) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _SocialLinkButton(
+                        link: link,
+                        onTap: () => _openSocialLink(context, link.url),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+      ),
+    );
+  }
+
+  Future<void> _openSocialLink(BuildContext context, String url) async {
+    final opened = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!opened && context.mounted) {
+      showToastError(text: 'تعذر فتح الرابط', context: context);
+    }
+  }
+
   Widget _buildHeroBanner(
     BuildContext context,
     UserCubit cubit,
@@ -465,68 +535,6 @@ class Home extends StatelessWidget {
   }
 
   // ─────────────────────────────────────────────────────
-  //  QUICK STATS / PROMO CHIPS
-  // ─────────────────────────────────────────────────────
-  Widget _buildQuickStats() {
-    final promos = [
-      (icon: Iconsax.truck_fast, label: 'شحن سريع', color: successColor),
-      (icon: Iconsax.shield_tick, label: 'ضمان الجودة', color: homeAccentColor),
-      (icon: Iconsax.rotate_left, label: 'إرجاع مجاني', color: dangerColor),
-    ];
-
-    return Row(
-      children:
-          promos.map((p) {
-            return Expanded(
-              child: Container(
-                margin: EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: homeCardColor,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: homeBorderColor),
-                  boxShadow: [
-                    BoxShadow(
-                      color: homeTextColor.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: p.color.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(p.icon, color: p.color, size: 18),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      p.label,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: homeTextColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Cairo',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────
   //  SECTION HEADER
   // ─────────────────────────────────────────────────────
   Widget _buildSectionHeader({
@@ -553,7 +561,6 @@ class Home extends StatelessWidget {
                   color: homeAccentColor,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ),
@@ -570,7 +577,6 @@ class Home extends StatelessWidget {
                   color: homeTextColor,
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
-                  fontFamily: 'Cairo',
                 ),
               ),
               const SizedBox(width: 8),
@@ -598,7 +604,7 @@ class Home extends StatelessWidget {
     String localeCode,
   ) {
     return SizedBox(
-      height: 105,
+      height: 100,
       child: ListView.builder(
         reverse: true,
         scrollDirection: Axis.horizontal,
@@ -614,8 +620,8 @@ class Home extends StatelessWidget {
                   SubCategoriesPage(parentCategory: cubit.getCatModel[i]),
                 ),
             child: Container(
-              width: 82,
-              margin: const EdgeInsets.only(left: 10),
+              width: 76,
+              margin: const EdgeInsets.only(left: 4),
               decoration: BoxDecoration(
                 color: homeCardColor,
                 borderRadius: BorderRadius.circular(18),
@@ -656,7 +662,6 @@ class Home extends StatelessWidget {
                         color: homeTextMutedColor,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                   ),
@@ -682,6 +687,7 @@ class Home extends StatelessWidget {
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       itemCount: cubit.products.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -706,6 +712,63 @@ class Home extends StatelessWidget {
           nameSeller: product.seller.name,
         );
       },
+    );
+  }
+}
+
+class _SocialLink {
+  const _SocialLink({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.url,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final String url;
+}
+
+class _SocialLinkButton extends StatelessWidget {
+  const _SocialLinkButton({required this.link, required this.onTap});
+
+  final _SocialLink link;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: link.label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.white.withOpacity(0.11)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(link.icon, color: link.color, size: 18),
+              const SizedBox(height: 4),
+              Text(
+                link.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.68),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Cairo',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:madrasati_app/core/%20navigation/navigation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/network/remote/dio_helper.dart';
 import '../../../../core/styles/themes.dart';
@@ -43,6 +44,8 @@ class UserProductGridCard extends StatelessWidget {
   final String nameSeller;
   final bool showDelete;
   final VoidCallback? onDelete;
+
+  static final String _appShareLink = appShareLink;
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +135,50 @@ class UserProductGridCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: GestureDetector(
+                      onTap: () => _shareProduct(context),
+                      child: Container(
+                        width: 70,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: homeAccentColor.withValues(alpha: 0.96),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.share_rounded,
+                              color: homeTextColor,
+                              size: 14,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'مشاركة',
+                              style: TextStyle(
+                                color: homeTextColor,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                   if (showDelete)
                     Positioned(
-                      top: 10,
+                      top: 50,
                       left: 10,
                       child: GestureDetector(
                         onTap: onDelete,
@@ -241,6 +285,24 @@ class UserProductGridCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _shareProduct(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final shareText = '''
+$title
+السعر: ${NumberFormat('#,###').format(price)} دينار عراقي
+$_appShareLink
+''';
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: shareText.trim(),
+        subject: title,
+        sharePositionOrigin:
+            box == null ? null : box.localToGlobal(Offset.zero) & box.size,
       ),
     );
   }

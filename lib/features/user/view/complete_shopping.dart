@@ -30,6 +30,7 @@ class CompleteShopping extends StatefulWidget {
 
 class _CompleteShoppingState extends State<CompleteShopping> {
   String _selectedDeliveryType = deliveryTypeStandard;
+  bool _didFillPhoneFromProfile = false;
 
   void showSuccessSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(
@@ -55,9 +56,20 @@ class _CompleteShoppingState extends State<CompleteShopping> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => UserCubit(),
+      create:
+          (BuildContext context) => UserCubit()..getProfile(context: context),
       child: BlocConsumer<UserCubit, UserStates>(
         listener: (context, state) {
+          if (state is GetProfileSuccessState && !_didFillPhoneFromProfile) {
+            final phone = UserCubit.get(context).profileModel?.phone.trim();
+            if (phone != null &&
+                phone.isNotEmpty &&
+                phoneController.text.trim().isEmpty) {
+              phoneController.text = phone;
+              _didFillPhoneFromProfile = true;
+            }
+          }
+
           if (state is AddOrderSuccessState) {
             phoneController.text = '';
             locationController.text = '';

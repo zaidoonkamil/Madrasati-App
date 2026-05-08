@@ -7,6 +7,7 @@ String id='';
 String adminOrUser='' ;
 String phoneWoner='7736699924' ;
 String logo='logomadrasaty.png' ;
+String appShareLink='logomadrasaty.png' ;
 String nameApp='طكة ناقص - ارخص الاسعار' ;
 
 
