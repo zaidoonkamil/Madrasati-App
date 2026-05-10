@@ -153,7 +153,6 @@ class _NavItem extends StatelessWidget {
                   color: color,
                   fontSize: 10.5,
                   fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
-                  fontFamily: 'Cairo',
                 ),
                 child: Text(
                   label,

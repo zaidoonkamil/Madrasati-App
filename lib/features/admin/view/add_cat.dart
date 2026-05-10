@@ -66,7 +66,7 @@ class _AddCatState extends State<AddCat> {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: appBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
@@ -228,7 +228,7 @@ class _AddCatState extends State<AddCat> {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
@@ -284,7 +284,7 @@ class _AddCatState extends State<AddCat> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: selected ? secondPrimaryColor : appBackgroundColor,
+          color: selected ? secondPrimaryColor : appMutedSurface(context),
         ),
         child: Column(
           children: [
@@ -305,7 +305,7 @@ class _AddCatState extends State<AddCat> {
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: selected ? Colors.white70 : secondTextColor,
+                color: selected ? Colors.white70 : appTextMuted(context),
                 fontSize: 12,
               ),
             ),
@@ -322,7 +322,7 @@ class _AddCatState extends State<AddCat> {
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: appSurface(context),
           borderRadius: BorderRadius.circular(24),
           boxShadow: const [
             BoxShadow(
@@ -388,7 +388,7 @@ class _AddCatState extends State<AddCat> {
   void _showMainCategoriesBottomSheet(BuildContext context, AdminCubit cubit) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: appSurface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

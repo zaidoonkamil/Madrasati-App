@@ -21,6 +21,7 @@ class OrdersAdmin extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   CustomAppBarAdmin(),
@@ -124,10 +125,25 @@ class _StatusCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: primaryColor,
+          color: appSurface(context),
+          border: Border.all(color: appBorder(context)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Center(
-          child: Text(label, style: const TextStyle(color: Colors.white)),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: secondPrimaryColor,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-﻿import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +32,7 @@ class Orders extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: pageBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBar(
@@ -63,85 +63,145 @@ class Orders extends StatelessWidget {
                                             totalOrders:
                                                 cubit.ordersUser.length,
                                           ),
-                                          SizedBox(height: 14,),
+                                          SizedBox(height: 14),
                                           ListView.separated(
                                             padding: EdgeInsets.zero,
                                             shrinkWrap: true,
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            itemCount: cubit.ordersUserModel!.orders.length,
-                                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount:
+                                                cubit
+                                                    .ordersUserModel!
+                                                    .orders
+                                                    .length,
+                                            separatorBuilder:
+                                                (context, index) =>
+                                                    const SizedBox(height: 12),
                                             itemBuilder: (context, index) {
-                                              if (index == cubit.ordersUserModel!.orders.length - 1 &&
+                                              if (index ==
+                                                      cubit
+                                                              .ordersUserModel!
+                                                              .orders
+                                                              .length -
+                                                          1 &&
                                                   !cubit.isLastPageOrdersUser) {
                                                 cubit.getOrdersUser(
-                                                  page: (cubit.currentPageOrdersUser + 1).toString(),
+                                                  page:
+                                                      (cubit.currentPageOrdersUser +
+                                                              1)
+                                                          .toString(),
                                                   context: context,
                                                 );
                                               }
 
-                                              final order = cubit.ordersUserModel!.orders[index];
+                                              final order =
+                                                  cubit
+                                                      .ordersUserModel!
+                                                      .orders[index];
 
                                               final formattedDate = DateFormat(
                                                 'yyyy/M/d',
                                               ).format(order.createdAt);
 
                                               return Container(
-                                                padding: const EdgeInsets.all(16),
+                                                padding: const EdgeInsets.all(
+                                                  16,
+                                                ),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius.circular(24),
-                                                  border: Border.all(color: borderColor),
+                                                  color: appSurface(context),
+                                                  borderRadius:
+                                                      BorderRadius.circular(24),
+                                                  border: Border.all(
+                                                    color: appBorder(context),
+                                                  ),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: secondPrimaryColor.withValues(alpha: 0.04),
+                                                      color: secondPrimaryColor
+                                                          .withValues(
+                                                            alpha: 0.04,
+                                                          ),
                                                       blurRadius: 20,
-                                                      offset: const Offset(0, 10),
+                                                      offset: const Offset(
+                                                        0,
+                                                        10,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
                                                   children: [
                                                     Row(
                                                       children: [
                                                         Container(
-                                                          padding: const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 8,
-                                                          ),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 14,
+                                                                vertical: 8,
+                                                              ),
                                                           decoration: BoxDecoration(
-                                                            color: orderStatusBackground(order.status),
-                                                            borderRadius: BorderRadius.circular(100),
+                                                            color:
+                                                                orderStatusBackground(
+                                                                  order.status,
+                                                                ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  100,
+                                                                ),
                                                           ),
                                                           child: Text(
-                                                            orderStatusLabel(order.status),
-                                                            style: const TextStyle(
-                                                              color: secondPrimaryColor,
-                                                              fontSize: 12,
-                                                              fontWeight: FontWeight.w800,
+                                                            orderStatusLabel(
+                                                              order.status,
                                                             ),
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .black,
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w800,
+                                                                ),
                                                           ),
                                                         ),
-                                                        const SizedBox(width: 12),
+                                                        const SizedBox(
+                                                          width: 12,
+                                                        ),
                                                         Expanded(
                                                           child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
                                                             children: [
                                                               Text(
                                                                 '${order.id}#',
-                                                                textAlign: TextAlign.end,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .end,
                                                                 style: const TextStyle(
-                                                                  color: secondPrimaryColor,
+                                                                  color:
+                                                                      secondPrimaryColor,
                                                                   fontSize: 16,
-                                                                  fontWeight: FontWeight.w800,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w800,
                                                                 ),
                                                               ),
-                                                              const SizedBox(height: 4),
+                                                              const SizedBox(
+                                                                height: 4,
+                                                              ),
                                                               Text(
                                                                 'تاريخ الطلب $formattedDate',
-                                                                textAlign: TextAlign.end,
-                                                                style: const TextStyle(
-                                                                  color: secondTextColor,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .end,
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      appTextMuted(
+                                                                        context,
+                                                                      ),
                                                                   fontSize: 12,
                                                                 ),
                                                               ),
@@ -153,21 +213,33 @@ class Orders extends StatelessWidget {
                                                     const SizedBox(height: 14),
                                                     Container(
                                                       width: double.infinity,
-                                                      padding: const EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 10,
-                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 10,
+                                                          ),
                                                       decoration: BoxDecoration(
-                                                        color: mutedSurfaceColor,
-                                                        borderRadius: BorderRadius.circular(16),
+                                                        color: appMutedSurface(
+                                                          context,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
                                                       ),
                                                       child: Text(
-                                                        deliveryTypeLabel(order.deliveryType),
-                                                        textAlign: TextAlign.end,
-                                                        style: const TextStyle(
-                                                          color: appTextPrimaryColor,
+                                                        deliveryTypeLabel(
+                                                          order.deliveryType,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.end,
+                                                        style: TextStyle(
+                                                          color: appTextPrimary(
+                                                            context,
+                                                          ),
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.w800,
+                                                          fontWeight:
+                                                              FontWeight.w800,
                                                         ),
                                                       ),
                                                     ),
@@ -177,15 +249,20 @@ class Orders extends StatelessWidget {
                                                         Expanded(
                                                           child: _OrderStat(
                                                             title: 'عدد القطع',
-                                                            value: order.totalItems.toString(),
+                                                            value:
+                                                                order.totalItems
+                                                                    .toString(),
                                                           ),
                                                         ),
-                                                        const SizedBox(width: 10),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
                                                         Expanded(
                                                           child: _OrderStat(
-                                                            title: 'المجموع الكلي',
+                                                            title:
+                                                                'المجموع الكلي',
                                                             value:
-                                                            '${NumberFormat('#,###').format(order.totalPrice)} د.ع',
+                                                                '${NumberFormat('#,###').format(order.totalPrice)} د.ع',
                                                           ),
                                                         ),
                                                       ],
@@ -240,7 +317,7 @@ class _OrdersHeader extends StatelessWidget {
         children: [
           Text(
             'طلباتي',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -273,7 +350,7 @@ class _OrderStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: mutedSurfaceColor,
+        color: appMutedSurface(context),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -281,8 +358,8 @@ class _OrderStat extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: secondTextColor,
+            style: TextStyle(
+              color: appTextMuted(context),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -318,7 +395,7 @@ class _GuestOrdersState extends StatelessWidget {
               width: 92,
               height: 92,
               decoration: BoxDecoration(
-                color: mutedSurfaceColor,
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(28),
               ),
               child: const Icon(
@@ -340,8 +417,8 @@ class _GuestOrdersState extends StatelessWidget {
             Text(
               'ستظهر هنا جميع الطلبات الحالية والسابقة بعد تسجيل الدخول.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: secondTextColor,
+              style: TextStyle(
+                color: appTextMuted(context),
                 fontSize: 13,
                 height: 1.7,
               ),
@@ -391,7 +468,7 @@ class _EmptyOrdersState extends StatelessWidget {
               width: 92,
               height: 92,
               decoration: BoxDecoration(
-                color: mutedSurfaceColor,
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(28),
               ),
               child: const Icon(
@@ -413,8 +490,8 @@ class _EmptyOrdersState extends StatelessWidget {
             Text(
               'عند إتمام أول طلب ستظهر بياناته هنا بشكل منظم.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: secondTextColor,
+              style: TextStyle(
+                color: appTextMuted(context),
                 fontSize: 13,
                 height: 1.7,
               ),

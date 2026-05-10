@@ -28,7 +28,7 @@ class Stats extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: pageBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBarBack(
@@ -93,6 +93,7 @@ class _StatsBody extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildMetricCard(
+                  context,
                   title: 'معدل الإنجاز',
                   value: '$completionRate%',
                   subtitle: 'من إجمالي الطلبات',
@@ -103,6 +104,7 @@ class _StatsBody extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildMetricCard(
+                  context,
                   title: 'توثيق الحسابات',
                   value: '$verifiedRate%',
                   subtitle: 'من إجمالي المستخدمين',
@@ -114,13 +116,14 @@ class _StatsBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSectionCard(
+            context,
             title: 'الطلبات',
             subtitle: 'الحركة الحالية وحالات الطلبات',
             child: Column(
               children: [
                 SizedBox(height: 220, child: _buildOrdersPieChart(stats)),
                 const SizedBox(height: 12),
-                _buildMiniMetrics([
+                _buildMiniMetrics(context, [
                   _MiniMetric(
                     label: 'اليوم',
                     value: stats.orders.ordersNew.today.toString(),
@@ -136,24 +139,28 @@ class _StatsBody extends StatelessWidget {
                 ]),
                 const SizedBox(height: 16),
                 _buildStatusProgress(
+                  context,
                   'قيد الانتظار',
                   stats.orders.status['pending'] ?? 0,
                   stats.orders.total,
                   const Color(0xFFF59E0B),
                 ),
                 _buildStatusProgress(
+                  context,
                   'قيد التوصيل',
                   stats.orders.status['delivery'] ?? 0,
                   stats.orders.total,
                   const Color(0xFF2563EB),
                 ),
                 _buildStatusProgress(
+                  context,
                   'مكتمل',
                   stats.orders.status['completed'] ?? 0,
                   stats.orders.total,
                   const Color(0xFF16A34A),
                 ),
                 _buildStatusProgress(
+                  context,
                   'ملغي',
                   stats.orders.status['cancelled'] ?? 0,
                   stats.orders.total,
@@ -164,6 +171,7 @@ class _StatsBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSectionCard(
+            context,
             title: 'المستخدمون',
             subtitle: 'تركيبة الحسابات والنمو',
             child: Column(
@@ -181,18 +189,22 @@ class _StatsBody extends StatelessWidget {
                       child: Column(
                         children: [
                           _buildMetricTile(
+                            context,
                             'إجمالي المستخدمين',
                             stats.users.total.toString(),
                           ),
                           _buildMetricTile(
+                            context,
                             'الموثقون',
                             stats.users.verified.toString(),
                           ),
                           _buildMetricTile(
+                            context,
                             'المسؤولون',
                             stats.users.roles.admin.toString(),
                           ),
                           _buildMetricTile(
+                            context,
                             'المستخدمون',
                             stats.users.roles.user.toString(),
                           ),
@@ -202,7 +214,7 @@ class _StatsBody extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildMiniMetrics([
+                _buildMiniMetrics(context, [
                   _MiniMetric(
                     label: 'اليوم',
                     value: stats.users.usersNew.today.toString(),
@@ -221,11 +233,12 @@ class _StatsBody extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSectionCard(
+            context,
             title: 'المنتجات',
             subtitle: 'نشاط الإضافة والتوزيع',
             child: Column(
               children: [
-                _buildMiniMetrics([
+                _buildMiniMetrics(context, [
                   _MiniMetric(
                     label: 'الإجمالي',
                     value: stats.products.total.toString(),
@@ -245,6 +258,7 @@ class _StatsBody extends StatelessWidget {
                 ]),
                 const SizedBox(height: 16),
                 _buildListSection(
+                  context,
                   title: 'الأكثر نشاطاً حسب القسم',
                   emptyLabel: 'لا توجد بيانات أقسام حالياً',
                   children:
@@ -252,6 +266,7 @@ class _StatsBody extends StatelessWidget {
                           .take(5)
                           .map(
                             (item) => _buildMetricTile(
+                              context,
                               'القسم ${item.categoryId == 0 ? "غير محدد" : item.categoryId}',
                               '${item.count} منتج',
                             ),
@@ -260,6 +275,7 @@ class _StatsBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _buildListSection(
+                  context,
                   title: 'أعلى التجار حسب عدد المنتجات',
                   emptyLabel: 'لا توجد بيانات تجار حالياً',
                   children:
@@ -267,6 +283,7 @@ class _StatsBody extends StatelessWidget {
                           .take(5)
                           .map(
                             (item) => _buildMetricTile(
+                              context,
                               'التاجر ${item.userId == 0 ? "غير محدد" : item.userId}',
                               '${item.count} منتج',
                             ),
@@ -379,7 +396,8 @@ class _StatsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionCard({
+  Widget _buildSectionCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required Widget child,
@@ -387,9 +405,9 @@ class _StatsBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
         boxShadow: [
           BoxShadow(
             color: secondPrimaryColor.withValues(alpha: 0.04),
@@ -414,7 +432,7 @@ class _StatsBody extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.end,
-            style: const TextStyle(color: secondTextColor, fontSize: 12),
+            style: TextStyle(color: appTextMuted(context), fontSize: 12),
           ),
           const SizedBox(height: 16),
           child,
@@ -423,7 +441,8 @@ class _StatsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricCard({
+  Widget _buildMetricCard(
+    BuildContext context, {
     required String title,
     required String value,
     required String subtitle,
@@ -433,9 +452,9 @@ class _StatsBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -475,14 +494,14 @@ class _StatsBody extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.end,
-            style: const TextStyle(color: secondTextColor, fontSize: 12),
+            style: TextStyle(color: appTextMuted(context), fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMiniMetrics(List<_MiniMetric> items) {
+  Widget _buildMiniMetrics(BuildContext context, List<_MiniMetric> items) {
     return Wrap(
       spacing: 10,
       runSpacing: 10,
@@ -496,7 +515,7 @@ class _StatsBody extends StatelessWidget {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: mutedSurfaceColor,
+                    color: appMutedSurface(context),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -513,8 +532,8 @@ class _StatsBody extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         item.label,
-                        style: const TextStyle(
-                          color: secondTextColor,
+                        style: TextStyle(
+                          color: appTextMuted(context),
                           fontSize: 12,
                         ),
                       ),
@@ -526,12 +545,12 @@ class _StatsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricTile(String label, String value) {
+  Widget _buildMetricTile(BuildContext context, String label, String value) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: mutedSurfaceColor,
+        color: appMutedSurface(context),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -557,7 +576,8 @@ class _StatsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildListSection({
+  Widget _buildListSection(
+    BuildContext context, {
     required String title,
     required String emptyLabel,
     required List<Widget> children,
@@ -579,13 +599,13 @@ class _StatsBody extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: mutedSurfaceColor,
+              color: appMutedSurface(context),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
               emptyLabel,
               textAlign: TextAlign.end,
-              style: const TextStyle(color: secondTextColor),
+              style: TextStyle(color: appTextMuted(context)),
             ),
           )
         else
@@ -594,7 +614,13 @@ class _StatsBody extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusProgress(String label, int value, int total, Color color) {
+  Widget _buildStatusProgress(
+    BuildContext context,
+    String label,
+    int value,
+    int total,
+    Color color,
+  ) {
     final progress = total == 0 ? 0.0 : value / total;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -753,7 +779,7 @@ class _LegendChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: mutedSurfaceColor,
+        color: appMutedSurface(context),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(

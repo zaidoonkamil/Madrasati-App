@@ -22,6 +22,7 @@ void main() async {
   );
   Bloc.observer = MyBlocObserver();
   await CacheHelper.init();
+  AppThemeController.instance.init();
   DioHelper.init();
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.Debug.setAlertLevel(OSLogLevel.none);
@@ -35,30 +36,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeService().lightTheme,
-      locale: const Locale('ar'),
-      builder: (context, child) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: bottomNavigationSafeColor,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-            systemNavigationBarColor: bottomNavigationSafeColor,
-            systemNavigationBarIconBrightness: Brightness.light,
-          ),
-          child: ColoredBox(
-            color: bottomNavigationSafeColor,
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: child ?? const SizedBox.shrink(),
-            ),
-          ),
+    final themeService = ThemeService();
+
+    return AnimatedBuilder(
+      animation: AppThemeController.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: themeService.lightTheme,
+          darkTheme: themeService.darkTheme,
+          themeMode: AppThemeController.instance.themeMode,
+          locale: const Locale('ar'),
+          builder: (context, child) {
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: const SystemUiOverlayStyle(
+                statusBarColor: bottomNavigationSafeColor,
+                statusBarIconBrightness: Brightness.light,
+                statusBarBrightness: Brightness.dark,
+                systemNavigationBarColor: bottomNavigationSafeColor,
+                systemNavigationBarIconBrightness: Brightness.light,
+              ),
+              child: ColoredBox(
+                color: bottomNavigationSafeColor,
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
+            );
+          },
+          title: 'مدرستي',
+          home: SplashScreen(),
         );
       },
-      title: 'توتو بارت',
-      home: SplashScreen(),
     );
   }
 }

@@ -36,7 +36,7 @@ class _AllProductsView extends StatelessWidget {
           final localeCode = Localizations.localeOf(context).languageCode;
 
           return Scaffold(
-            backgroundColor: pageBackgroundColor,
+            backgroundColor: appPageColor(context),
             body: Column(
               children: [
                 _Header(
@@ -64,9 +64,11 @@ class _AllProductsView extends StatelessWidget {
                               if (index >= cubit.products.length) {
                                 return Container(
                                   decoration: BoxDecoration(
-                                    color: cardSurfaceColor,
+                                    color: appSurface(context),
                                     borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: borderColor),
+                                    border: Border.all(
+                                      color: appBorder(context),
+                                    ),
                                   ),
                                   child: const Center(
                                     child: CircularProgressIndicator(
@@ -88,6 +90,8 @@ class _AllProductsView extends StatelessWidget {
                                 ),
                                 price: product.price,
                                 stock: product.stock,
+                                colors: product.colors,
+                                sizes: product.sizes,
                                 images: product.images,
                                 isFavorite: product.isFavorite,
                                 imageSeller: product.seller.image,

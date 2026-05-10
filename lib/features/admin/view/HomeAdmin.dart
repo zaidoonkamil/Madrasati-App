@@ -34,6 +34,10 @@ class HomeAdmin extends StatelessWidget {
                 ..getGreeting()
                 ..getAds(context: context)
                 ..getProfile(context: context)
+                ..getSocialSettings(context: context)
+                ..getCoupons(context: context)
+                ..getFaqs(context: context)
+                ..getCustomRequests(context: context)
                 ..getCat(context: context)
                 ..getProducts(context: context, page: '1'),
       child: BlocConsumer<AdminCubit, AdminStates>(
@@ -57,6 +61,8 @@ class HomeAdmin extends StatelessWidget {
                             ),
                             child: Column(
                               children: [
+                                _AdminToolsCard(cubit: cubit),
+                                const SizedBox(height: 12),
                                 ConditionalBuilder(
                                   condition: cubit.getAdsModel.isNotEmpty,
                                   builder: (c) {
@@ -295,9 +301,11 @@ class HomeAdmin extends StatelessWidget {
                                                 height: 70,
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: containerColor,
+                                                  color: appMutedSurface(
+                                                    context,
+                                                  ),
                                                   border: Border.all(
-                                                    color: borderColor,
+                                                    color: appBorder(context),
                                                     width: 1.0,
                                                   ),
                                                   image: DecorationImage(
@@ -396,7 +404,7 @@ class HomeAdmin extends StatelessWidget {
                                             crossAxisCount: 2,
                                             crossAxisSpacing: 4,
                                             mainAxisSpacing: 1,
-                                            childAspectRatio: 0.6,
+                                            childAspectRatio: 0.48,
                                           ),
                                       childrenDelegate: SliverChildBuilderDelegate(
                                         childCount:
@@ -471,6 +479,16 @@ class HomeAdmin extends StatelessWidget {
                                                           .productsModel!
                                                           .products[index]
                                                           .stock,
+                                                  colors:
+                                                      cubit
+                                                          .productsModel!
+                                                          .products[index]
+                                                          .colors,
+                                                  sizes:
+                                                      cubit
+                                                          .productsModel!
+                                                          .products[index]
+                                                          .sizes,
                                                   images:
                                                       cubit
                                                           .productsModel!
@@ -511,10 +529,10 @@ class HomeAdmin extends StatelessWidget {
                                               padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 border: Border.all(
-                                                  color: borderColor,
+                                                  color: appBorder(context),
                                                   width: 1.0,
                                                 ),
-                                                color: containerColor,
+                                                color: appSurface(context),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -618,6 +636,16 @@ class HomeAdmin extends StatelessWidget {
                                                                   TextOverflow
                                                                       .ellipsis,
                                                             ),
+                                                            Text(
+                                                              'ID: ${cubit.productsModel!.products[index].id}',
+                                                              style: const TextStyle(
+                                                                fontSize: 11,
+                                                                color:
+                                                                    appTextMutedColor,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign.end,
+                                                            ),
                                                             SizedBox(height: 6),
                                                             Text(
                                                               cubit
@@ -705,6 +733,8 @@ class HomeAdmin extends StatelessWidget {
                                       ),
                                     )
                                     : Container(),
+
+                                SizedBox(height: 100),
                               ],
                             ),
                           ),
@@ -725,6 +755,352 @@ class HomeAdmin extends StatelessWidget {
   }
 }
 
+class _AdminToolsCard extends StatelessWidget {
+  const _AdminToolsCard({required this.cubit});
+
+  final AdminCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: appSurface(context),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: appBorder(context)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'الأسئلة الشائعة',
+                style: IconButton.styleFrom(backgroundColor: appAccentColor),
+                onPressed: () => _showFaqAdminDialog(context, cubit),
+                icon: const Icon(Icons.question_answer_outlined),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: appAccentColor,
+                  foregroundColor: appTextPrimaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: () => _showCouponDialog(context, cubit),
+                icon: const Icon(Icons.local_offer_outlined, size: 18),
+                label: const Text('كوبونات'),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'الطلبات المخصصة',
+                style: IconButton.styleFrom(backgroundColor: appAccentColor),
+                onPressed: () => _showCustomRequestsDialog(context, cubit),
+                icon: const Icon(Icons.assignment_outlined),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Switch(
+                value: cubit.showSocialLinks,
+                activeColor: appAccentColor,
+                onChanged:
+                    (value) => cubit.updateSocialSettings(
+                      context: context,
+                      show: value,
+                    ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'إظهار التواصل',
+                style: TextStyle(
+                  color: appTextPrimaryColor,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void _showFaqAdminDialog(BuildContext context, AdminCubit cubit) {
+  final q = TextEditingController();
+  final a = TextEditingController();
+  showDialog(
+    context: context,
+    builder:
+        (dialogContext) => AlertDialog(
+          backgroundColor: appSurface(context),
+          title: const Text('الأسئلة الشائعة', textAlign: TextAlign.end),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _EditProductField(controller: q, hint: 'السؤال'),
+                const SizedBox(height: 10),
+                _EditProductField(controller: a, hint: 'الجواب', maxLines: 3),
+                const SizedBox(height: 12),
+                ...cubit.faqs.map(
+                  (faq) => ListTile(
+                    title: Text(
+                      faq['question']?.toString() ?? '',
+                      textAlign: TextAlign.end,
+                    ),
+                    subtitle: Text(
+                      faq['answer']?.toString() ?? '',
+                      textAlign: TextAlign.end,
+                    ),
+                    leading: IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: appDangerColor,
+                      ),
+                      onPressed:
+                          () => cubit.deleteFaq(
+                            context: context,
+                            faqId: faq['id'] as int,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إغلاق'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                cubit.addFaq(
+                  context: context,
+                  question: q.text,
+                  answer: a.text,
+                );
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('إضافة'),
+            ),
+          ],
+        ),
+  );
+}
+
+void _showCustomRequestsDialog(BuildContext context, AdminCubit cubit) {
+  showDialog(
+    context: context,
+    builder:
+        (dialogContext) => AlertDialog(
+          backgroundColor: appSurface(context),
+          title: const Text('الطلبات المخصصة', textAlign: TextAlign.end),
+          content: SizedBox(
+            width: double.maxFinite,
+            child:
+                cubit.customRequests.isEmpty
+                    ? const Text(
+                      'لا توجد طلبات مخصصة حالياً',
+                      textAlign: TextAlign.center,
+                    )
+                    : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: cubit.customRequests.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (_, index) {
+                        final request = cubit.customRequests[index];
+                        final user = request['user'] as Map?;
+                        return ListTile(
+                          title: Text(
+                            request['description']?.toString() ?? '',
+                            textAlign: TextAlign.end,
+                          ),
+                          subtitle: Text(
+                            '${user?['name'] ?? ''}\n${user?['phone'] ?? ''}',
+                            textAlign: TextAlign.end,
+                          ),
+                        );
+                      },
+                    ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إغلاق'),
+            ),
+          ],
+        ),
+  );
+}
+
+void _showCouponDialog(BuildContext pageContext, AdminCubit cubit) {
+  final codeController = TextEditingController();
+  final valueController = TextEditingController();
+  String type = 'percentage';
+
+  showDialog(
+    context: pageContext,
+    builder:
+        (dialogContext) => StatefulBuilder(
+          builder:
+              (sheetContext, setState) => AlertDialog(
+                backgroundColor: appSurface(pageContext),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                title: const Text(
+                  'كوبونات الخصم',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _EditProductField(
+                        controller: codeController,
+                        hint: 'رمز الكوبون',
+                      ),
+                      const SizedBox(height: 10),
+                      _EditProductField(
+                        controller: valueController,
+                        hint: type == 'percentage' ? 'النسبة %' : 'المبلغ',
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('مبلغ'),
+                            selected: type == 'fixed',
+                            onSelected: (_) => setState(() => type = 'fixed'),
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: const Text('نسبة'),
+                            selected: type == 'percentage',
+                            onSelected:
+                                (_) => setState(() => type = 'percentage'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ...cubit.coupons.map((coupon) {
+                        final active = coupon['isActive'] == true;
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            coupon['code']?.toString() ?? '',
+                            textAlign: TextAlign.end,
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          subtitle: Text(
+                            '${coupon['value']} ${coupon['type'] == 'fixed' ? 'د.ع' : '%'}',
+                            textAlign: TextAlign.end,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: appDangerColor,
+                            ),
+                            onPressed:
+                                () => _confirmDeleteCoupon(
+                                  pageContext,
+                                  cubit,
+                                  coupon['id'] as int,
+                                  coupon['code']?.toString() ?? '',
+                                ),
+                          ),
+                          leading: Switch(
+                            value: active,
+                            activeColor: appAccentColor,
+                            onChanged:
+                                (_) => cubit.toggleCoupon(
+                                  context: pageContext,
+                                  couponId: coupon['id'] as int,
+                                  isActive: active,
+                                ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('إغلاق'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appAccentColor,
+                      foregroundColor: appTextPrimaryColor,
+                    ),
+                    onPressed: () {
+                      cubit.addCoupon(
+                        context: pageContext,
+                        code: codeController.text.trim(),
+                        type: type,
+                        value: valueController.text.trim(),
+                      );
+                      Navigator.pop(dialogContext);
+                    },
+                    child: const Text('إضافة'),
+                  ),
+                ],
+              ),
+        ),
+  );
+}
+
+void _confirmDeleteCoupon(
+  BuildContext context,
+  AdminCubit cubit,
+  int couponId,
+  String couponCode,
+) {
+  showDialog(
+    context: context,
+    builder:
+        (dialogContext) => AlertDialog(
+          backgroundColor: appSurface(context),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            'حذف الكوبون',
+            textAlign: TextAlign.end,
+            style: TextStyle(fontWeight: FontWeight.w900),
+          ),
+          content: Text(
+            'هل تريد حذف كوبون $couponCode؟',
+            textAlign: TextAlign.end,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: appDangerColor,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                cubit.deleteCoupon(context: context, couponId: couponId);
+              },
+              child: const Text('حذف'),
+            ),
+          ],
+        ),
+  );
+}
+
 void _showEditProductDialog(
   BuildContext context,
   AdminCubit cubit,
@@ -736,21 +1112,27 @@ void _showEditProductDialog(
   );
   final priceController = TextEditingController(text: product.price.toString());
   final stockController = TextEditingController(text: product.stock.toString());
+  final colorsController = TextEditingController(
+    text: (product.colors as List).join(', '),
+  );
+  final sizesController = TextEditingController(
+    text: (product.sizes as List).join(', '),
+  );
   final formKey = GlobalKey<FormState>();
 
   showDialog(
     context: context,
     builder:
         (dialogContext) => AlertDialog(
-          backgroundColor: appSurfaceColor,
+          backgroundColor: appSurface(context),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          title: const Text(
+          title: Text(
             'تعديل المنتج',
             textAlign: TextAlign.end,
             style: TextStyle(
-              color: appTextPrimaryColor,
+              color: appTextPrimary(context),
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -782,6 +1164,18 @@ void _showEditProductDialog(
                     hint: 'الوصف',
                     maxLines: 4,
                   ),
+                  const SizedBox(height: 10),
+                  _EditProductField(
+                    controller: colorsController,
+                    requiredField: false,
+                    hint: 'الألوان اختيارية: أحمر, أزرق',
+                  ),
+                  const SizedBox(height: 10),
+                  _EditProductField(
+                    controller: sizesController,
+                    requiredField: false,
+                    hint: 'القياسات اختيارية: S, M, L',
+                  ),
                 ],
               ),
             ),
@@ -806,6 +1200,8 @@ void _showEditProductDialog(
                   description: descriptionController.text.trim(),
                   price: priceController.text.trim(),
                   stock: stockController.text.trim(),
+                  colors: colorsController.text.trim(),
+                  sizes: sizesController.text.trim(),
                   context: context,
                 );
                 Navigator.pop(dialogContext);
@@ -823,12 +1219,14 @@ class _EditProductField extends StatelessWidget {
     required this.hint,
     this.keyboardType,
     this.maxLines = 1,
+    this.requiredField = true,
   });
 
   final TextEditingController controller;
   final String hint;
   final TextInputType? keyboardType;
   final int maxLines;
+  final bool requiredField;
 
   @override
   Widget build(BuildContext context) {
@@ -840,14 +1238,15 @@ class _EditProductField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: appMutedSurfaceColor,
+        fillColor: appMutedSurface(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
       ),
       validator: (value) {
-        if (value == null || value.trim().isEmpty) {
+        if (!requiredField) return null;
+        if (requiredField && (value == null || value.trim().isEmpty)) {
           return 'هذا الحقل مطلوب';
         }
         return null;

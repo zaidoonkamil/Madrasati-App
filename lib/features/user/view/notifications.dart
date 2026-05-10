@@ -29,7 +29,7 @@ class NotificationsUser extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: pageBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   CustomAppBarBack(
@@ -83,9 +83,9 @@ class _NotificationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cardSurfaceColor,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -96,7 +96,7 @@ class _NotificationCard extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: mutedSurfaceColor,
+                  color: appMutedSurface(context),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(
@@ -122,10 +122,10 @@ class _NotificationCard extends StatelessWidget {
           Text(
             log.localizedMessage(localeCode),
             textAlign: TextAlign.end,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 1.6,
-              color: secondTextColor,
+              color: appTextMuted(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -163,7 +163,7 @@ class _EmptyNotifications extends StatelessWidget {
               width: 74,
               height: 74,
               decoration: BoxDecoration(
-                color: mutedSurfaceColor,
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: const Icon(
@@ -186,8 +186,8 @@ class _EmptyNotifications extends StatelessWidget {
             Text(
               'عند وصول أي إشعار جديد سيظهر هنا مباشرة',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: secondTextColor,
+              style: TextStyle(
+                color: appTextMuted(context),
                 fontSize: 13,
                 height: 1.6,
               ),

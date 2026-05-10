@@ -19,16 +19,16 @@ import '../cubit/states.dart';
 // ═══════════════════════════════════════════════════════
 //  PALETTE  (matches Home & Profile)
 // ═══════════════════════════════════════════════════════
-const _cream = appBackgroundColor;
 const _inkDeep = appTextPrimaryColor;
 const _accentAmber = appAccentColor;
 const _accentRose = appDangerColor;
-const _cardBg = appSurfaceColor;
 const _softGray = appMutedSurfaceColor;
 const _textMuted = appTextMutedColor;
 
 class Basket extends StatelessWidget {
   const Basket({super.key});
+
+  static final TextEditingController couponController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class Basket extends StatelessWidget {
         }
       });
 
-      return const Scaffold(backgroundColor: _cream);
+      return Scaffold(backgroundColor: appPageColor(context));
     }
 
     return BlocProvider(
@@ -52,7 +52,7 @@ class Basket extends StatelessWidget {
           final hasItems = cubit.basketModel.isNotEmpty;
 
           return Scaffold(
-            backgroundColor: _cream,
+            backgroundColor: appPageColor(context),
             body: SafeArea(
               top: false,
               child: Column(
@@ -84,6 +84,11 @@ class Basket extends StatelessWidget {
                                   ),
 
                               SizedBox(height: 14),
+                              _CouponCard(
+                                controller: couponController,
+                                cubit: cubit,
+                              ),
+                              const SizedBox(height: 14),
                               ListView.separated(
                                 shrinkWrap: true,
                                 padding: EdgeInsets.zero,
@@ -177,7 +182,6 @@ class _SummaryCard extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.50),
                   fontSize: 11,
-                  fontFamily: 'Cairo',
                 ),
               ),
               const SizedBox(height: 4),
@@ -185,12 +189,11 @@ class _SummaryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    NumberFormat('#,###').format(cubit.getTotalPrice()),
+                    NumberFormat('#,###').format(cubit.getFinalTotalPrice()),
                     style: const TextStyle(
                       color: _accentAmber,
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -202,7 +205,6 @@ class _SummaryCard extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.65),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                   ),
@@ -210,6 +212,25 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
+          if (cubit.couponDiscount > 0) ...[
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _accentAmber.withValues(alpha: 0.25)),
+              ),
+              child: Text(
+                'خصم ${NumberFormat('#,###').format(cubit.couponDiscount)}',
+                style: const TextStyle(
+                  color: _accentAmber,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
 
           const Spacer(),
 
@@ -222,7 +243,6 @@ class _SummaryCard extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.50),
                   fontSize: 11,
-                  fontFamily: 'Cairo',
                 ),
               ),
               const SizedBox(height: 6),
@@ -244,7 +264,6 @@ class _SummaryCard extends StatelessWidget {
                     color: _accentAmber,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    fontFamily: 'Cairo',
                   ),
                 ),
               ),
@@ -259,6 +278,100 @@ class _SummaryCard extends StatelessWidget {
 // ═══════════════════════════════════════════════════════
 //  BASKET ITEM CARD
 // ═══════════════════════════════════════════════════════
+class _CouponCard extends StatelessWidget {
+  const _CouponCard({required this.controller, required this.cubit});
+
+  final TextEditingController controller;
+  final UserCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final applied = cubit.appliedCouponCode;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: appSurface(context),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: appBorder(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Text(
+            'كوبون الخصم',
+            style: TextStyle(
+              color: _inkDeep,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              GestureDetector(
+                onTap:
+                    applied == null
+                        ? () => cubit.applyCoupon(
+                          context: context,
+                          code: controller.text,
+                        )
+                        : () {
+                          controller.clear();
+                          cubit.clearCoupon();
+                        },
+                child: Container(
+                  height: 48,
+                  width: 54,
+                  decoration: BoxDecoration(
+                    color: appAccentColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    applied == null
+                        ? Iconsax.tick_circle
+                        : Iconsax.close_circle,
+                    color: _inkDeep,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  textAlign: TextAlign.end,
+                  enabled: applied == null,
+                  decoration: InputDecoration(
+                    hintText: 'اكتب رمز الكوبون',
+                    filled: true,
+                    fillColor: _softGray,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (applied != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              'تم تطبيق $applied',
+              style: const TextStyle(
+                color: appSuccessColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _BasketItem extends StatelessWidget {
   const _BasketItem({
     required this.item,
@@ -279,9 +392,9 @@ class _BasketItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _softGray),
+        border: Border.all(color: appBorder(context)),
         boxShadow: [
           BoxShadow(
             color: _inkDeep.withValues(alpha: 0.04),
@@ -338,12 +451,33 @@ class _BasketItem extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           height: 1.35,
-                          fontFamily: 'Cairo',
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                if (item.selectedColor != null ||
+                    item.selectedSize != null) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      if (item.selectedColor != null)
+                        _OptionBadge(
+                          label: 'اللون',
+                          value: item.selectedColor!,
+                        ),
+                      if (item.selectedSize != null)
+                        _OptionBadge(
+                          label: 'القياس',
+                          value: item.selectedSize!,
+                        ),
+                    ],
+                  ),
+                ],
 
                 const SizedBox(height: 10),
 
@@ -358,17 +492,12 @@ class _BasketItem extends StatelessWidget {
                         color: _accentAmber,
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                     const SizedBox(width: 3),
                     const Text(
                       'د.ع',
-                      style: TextStyle(
-                        color: _textMuted,
-                        fontSize: 11,
-                        fontFamily: 'Cairo',
-                      ),
+                      style: TextStyle(color: _textMuted, fontSize: 11),
                     ),
                     // Unit price chip
                     const Spacer(),
@@ -384,11 +513,7 @@ class _BasketItem extends StatelessWidget {
                       ),
                       child: Text(
                         'القطعة ${NumberFormat('#,###').format(item.product.price)} د.ع',
-                        style: const TextStyle(
-                          color: _textMuted,
-                          fontSize: 10,
-                          fontFamily: 'Cairo',
-                        ),
+                        style: const TextStyle(color: _textMuted, fontSize: 10),
                       ),
                     ),
                   ],
@@ -424,7 +549,6 @@ class _BasketItem extends StatelessWidget {
                                 fontSize: 16,
                                 color: _inkDeep,
                                 fontWeight: FontWeight.w900,
-                                fontFamily: 'Cairo',
                               ),
                             ),
                           ),
@@ -444,7 +568,6 @@ class _BasketItem extends StatelessWidget {
                         color: _textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                   ],
@@ -510,6 +633,32 @@ class _QtyBtn extends StatelessWidget {
 // ═══════════════════════════════════════════════════════
 //  CHECKOUT BAR
 // ═══════════════════════════════════════════════════════
+class _OptionBadge extends StatelessWidget {
+  const _OptionBadge({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: _softGray,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        '$label: $value',
+        style: const TextStyle(
+          color: _textMuted,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 class _CheckoutBar extends StatelessWidget {
   const _CheckoutBar({required this.cubit});
   final UserCubit cubit;
@@ -524,10 +673,17 @@ class _CheckoutBar extends StatelessWidget {
                   (item) => {
                     'productId': item.productId,
                     'quantity': item.quantity,
+                    if (item.selectedColor != null)
+                      'selectedColor': item.selectedColor,
+                    if (item.selectedSize != null)
+                      'selectedSize': item.selectedSize,
                   },
                 )
                 .toList();
-        navigateTo(context, CompleteShopping(items: items));
+        navigateTo(
+          context,
+          CompleteShopping(items: items, couponCode: cubit.appliedCouponCode),
+        );
       },
       child: Container(
         height: 64,
@@ -571,15 +727,13 @@ class _CheckoutBar extends StatelessWidget {
                       color: _inkDeep,
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   Text(
-                    'إجمالي الطلب ${NumberFormat('#,###').format(cubit.getTotalPrice())} د.ع',
+                    'إجمالي الطلب ${NumberFormat('#,###').format(cubit.getFinalTotalPrice())} د.ع',
                     style: TextStyle(
                       color: _inkDeep.withValues(alpha: 0.60),
                       fontSize: 11,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                 ],
@@ -633,19 +787,13 @@ class _EmptyBasket extends StatelessWidget {
                 color: _inkDeep,
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
-                fontFamily: 'Cairo',
               ),
             ).animate().fadeIn(delay: 150.ms, duration: 280.ms),
             const SizedBox(height: 8),
             const Text(
               'أضف بعض المنتجات ثم ارجع هنا لإكمال الطلب',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: _textMuted,
-                fontSize: 13,
-                height: 1.7,
-                fontFamily: 'Cairo',
-              ),
+              style: TextStyle(color: _textMuted, fontSize: 13, height: 1.7),
             ).animate().fadeIn(delay: 220.ms, duration: 280.ms),
             const SizedBox(height: 28),
             GestureDetector(
@@ -665,7 +813,6 @@ class _EmptyBasket extends StatelessWidget {
                     color: _inkDeep,
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
-                    fontFamily: 'Cairo',
                   ),
                 ),
               ),

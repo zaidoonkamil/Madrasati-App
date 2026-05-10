@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/ navigation/navigation.dart';
-import '../../../../core/widgets/background.dart';
 import '../../../../core/widgets/circular_progress.dart';
-
 
 class ChatAdmin extends StatefulWidget {
   final int userId;
@@ -45,30 +43,32 @@ class _ChatAdminState extends State<ChatAdmin> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AdminChatCubit(
-        adminId: int.parse(id),
-        userId: widget.userId,
-      ),
+      create:
+          (_) => AdminChatCubit(adminId: int.parse(id), userId: widget.userId),
       child: BlocListener<AdminChatCubit, AdminChatState>(
         listener: (context, state) {
           if (state is AdminChatLoaded) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _scrollToBottom(),
+            );
           }
-          if (state is AdminChatError) {
-
-          }
+          if (state is AdminChatError) {}
         },
         child: SafeArea(
           child: Scaffold(
+            backgroundColor: appPageColor(context),
             body: Stack(
               children: [
-                Background(),
+                ColoredBox(color: appPageColor(context)),
                 Column(
                   children: [
                     Container(
                       color: primaryColor,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -101,7 +101,8 @@ class _ChatAdminState extends State<ChatAdmin> {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: BlocBuilder<AdminChatCubit, AdminChatState>(
                           builder: (context, state) {
-                            if (state is AdminChatConnecting ||state is AdminChatLoading) {
+                            if (state is AdminChatConnecting ||
+                                state is AdminChatLoading) {
                               return const Center(child: CircularProgress());
                             } else if (state is AdminChatLoaded) {
                               var messages = state.messages;
@@ -110,69 +111,115 @@ class _ChatAdminState extends State<ChatAdmin> {
                                 itemCount: messages.length,
                                 itemBuilder: (context, index) {
                                   final msg = messages[index];
-                                  final isUserMessage = msg['senderId'] != widget.userId;
+                                  final isUserMessage =
+                                      msg['senderId'] != widget.userId;
                                   final messageText = msg['message'] ?? '';
                                   return Align(
-                                    alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
+                                    alignment:
+                                        isUserMessage
+                                            ? Alignment.centerRight
+                                            : Alignment.centerLeft,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
-                                        isUserMessage ==false? Row(
-                                          children: [
-                                            const SizedBox(width: 8),
-                                            Image.asset(
-                                              'assets/images/Mask group.png',
-                                              width: 40,
-                                              height: 40,
-                                            ),
-                                          ],
-                                        ):Container(),
+                                        isUserMessage == false
+                                            ? Row(
+                                              children: [
+                                                const SizedBox(width: 8),
+                                                Image.asset(
+                                                  'assets/images/Mask group.png',
+                                                  width: 40,
+                                                  height: 40,
+                                                ),
+                                              ],
+                                            )
+                                            : Container(),
                                         Container(
-                                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                            horizontal: 8,
+                                          ),
                                           padding: const EdgeInsets.all(12),
-                                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                                          constraints: BoxConstraints(
+                                            maxWidth:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.width *
+                                                0.7,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: isUserMessage ? primaryColor : Colors.grey[300],
-                                            borderRadius: isUserMessage ?const BorderRadius.only(
-                                              topLeft: Radius.circular(14),
-                                              topRight: Radius.circular(14),
-                                              bottomLeft: Radius.circular(14),
-                                            ):BorderRadius.only(
-                                              topLeft: Radius.circular(14),
-                                              topRight: Radius.circular(14),
-                                              bottomRight: Radius.circular(14),
+                                            color:
+                                                isUserMessage
+                                                    ? primaryColor
+                                                    : appSurface(context),
+                                            border: Border.all(
+                                              color:
+                                                  isUserMessage
+                                                      ? primaryColor
+                                                      : appBorder(context),
                                             ),
+                                            borderRadius:
+                                                isUserMessage
+                                                    ? const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        14,
+                                                      ),
+                                                      topRight: Radius.circular(
+                                                        14,
+                                                      ),
+                                                      bottomLeft:
+                                                          Radius.circular(14),
+                                                    )
+                                                    : BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        14,
+                                                      ),
+                                                      topRight: Radius.circular(
+                                                        14,
+                                                      ),
+                                                      bottomRight:
+                                                          Radius.circular(14),
+                                                    ),
                                           ),
                                           child: Text(
                                             messageText,
                                             style: TextStyle(
-                                              color: isUserMessage ? Colors.white : Colors.black87,
+                                              color:
+                                                  isUserMessage
+                                                      ? Colors.white
+                                                      : appTextPrimary(context),
                                             ),
                                             textAlign: TextAlign.right,
                                             softWrap: true,
                                           ),
                                         ),
-                                        isUserMessage? Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor: Colors.blueAccent,
-                                              child: Text(
-                                                'اد'.toUpperCase(),
-                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                          ],
-                                        ):Container(),
-
+                                        isUserMessage
+                                            ? Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 20,
+                                                  backgroundColor:
+                                                      Colors.blueAccent,
+                                                  child: Text(
+                                                    'اد'.toUpperCase(),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            )
+                                            : Container(),
                                       ],
                                     ),
                                   );
                                 },
                               );
-
                             } else if (state is AdminChatError) {
                               return Center(child: Text(state.message));
                             }
@@ -192,7 +239,6 @@ class _ChatAdminState extends State<ChatAdmin> {
     );
   }
 }
-
 
 class _MessageInput extends StatefulWidget {
   @override
@@ -225,9 +271,10 @@ class _MessageInputState extends State<_MessageInput> {
         child: Row(
           children: [
             InkWell(
-                onTap: () => _send(context),
-                child: Image.asset('assets/images/akar-icons_send.png')),
-            SizedBox(width: 8,),
+              onTap: () => _send(context),
+              child: Image.asset('assets/images/akar-icons_send.png'),
+            ),
+            SizedBox(width: 8),
             Expanded(
               child: TextField(
                 controller: _controller,

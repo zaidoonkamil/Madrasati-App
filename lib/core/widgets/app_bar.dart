@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget {
         16,
         16,
       ),
-      decoration: const BoxDecoration(color: homeTextColor),
+      decoration: BoxDecoration(color: appHeaderBackground(context)),
       child: Row(
         children: [
           // Cart / Basket icon
@@ -65,7 +65,6 @@ class CustomAppBar extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -84,7 +83,6 @@ class CustomAppBar extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 10,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ],
@@ -114,7 +112,7 @@ class CustomAppBarBack extends StatelessWidget {
         16,
         14,
       ),
-      decoration: const BoxDecoration(color: homeTextColor),
+      decoration: BoxDecoration(color: appHeaderBackground(context)),
       child: Row(
         children: [
           GestureDetector(
@@ -148,7 +146,6 @@ class CustomAppBarBack extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -167,7 +164,96 @@ class CustomAppBarBack extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
-                  fontFamily: 'Cairo',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomAppBarBackPr extends StatelessWidget {
+  const CustomAppBarBackPr({
+    super.key,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        MediaQuery.paddingOf(context).top + 12,
+        16,
+        14,
+      ),
+      decoration: BoxDecoration(color: appHeaderBackground(context)),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => navigateBack(context),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(13),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+              ),
+              child: Icon(
+                Iconsax.arrow_left,
+                color: Colors.white.withValues(alpha: 0.75),
+                size: 20,
+              ),
+            ),
+          ),
+          SizedBox(width: 6),
+          _BasketIconButton(
+            onTap: () {
+              if (token.isEmpty || id.isEmpty) {
+                showToastInfo(text: 'سجل الدخول أولاً', context: context);
+                return;
+              }
+
+              navigateTo(context, const Basket());
+            },
+          ),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: homeAccentColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontSize: 10,
                 ),
               ),
             ],
@@ -191,23 +277,23 @@ class CustomAppBarAdmin extends StatelessWidget {
         16,
         16,
       ),
-      decoration: const BoxDecoration(color: appAdminHeaderColor),
+      decoration: BoxDecoration(color: appHeaderBackground(context)),
       child: Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(13),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-            ),
-            child: const Icon(
-              Iconsax.setting_2,
-              color: appAdminAccentColor,
-              size: 20,
-            ),
-          ),
+          // Container(
+          //   width: 42,
+          //   height: 42,
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withValues(alpha: 0.08),
+          //     borderRadius: BorderRadius.circular(13),
+          //     border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+          //   ),
+          //   child: const Icon(
+          //     Iconsax.setting_2,
+          //     color: appAdminAccentColor,
+          //     size: 20,
+          //   ),
+          // ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -220,7 +306,6 @@ class CustomAppBarAdmin extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -239,7 +324,6 @@ class CustomAppBarAdmin extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.50),
                   fontSize: 10,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ],

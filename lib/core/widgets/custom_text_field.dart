@@ -12,6 +12,7 @@ class CustomTextField extends StatelessWidget {
   final void Function()? onTap;
   final TextEditingController? controller;
   final int maxLines;
+  final bool readOnly;
 
   const CustomTextField({
     super.key,
@@ -24,42 +25,43 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.maxLines = 1,
+    this.readOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(minHeight: 54),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: appSurfaceColor,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: appBorderColor),
+        border: Border.all(color: appBorder(context)),
       ),
       child: TextFormField(
         textAlign: TextAlign.right,
         keyboardType: keyboardType,
         obscureText: obscureText,
         controller: controller,
+        readOnly: readOnly,
         maxLines: maxLines,
         validator: validate,
         onTap: onTap,
-        style: const TextStyle(
-          color: appTextPrimaryColor,
+        style: TextStyle(
+          color: appTextPrimary(context),
           fontSize: 14,
           fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: appTextMutedColor,
+          hintStyle: TextStyle(
+            color: appTextMuted(context),
             fontWeight: FontWeight.w600,
           ),
           border: InputBorder.none,
           prefixIcon:
               prefixIcon == null
                   ? null
-                  : Icon(prefixIcon, color: appTextMutedColor, size: 20),
+                  : Icon(prefixIcon, color: appTextMuted(context), size: 20),
           suffixIcon: suffixIcon,
           errorStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),

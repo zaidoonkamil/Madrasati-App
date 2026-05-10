@@ -56,6 +56,7 @@ class Home extends StatelessWidget {
           (context) =>
               UserCubit()
                 ..getGreeting()
+                ..getSocialSettings(context: context)
                 ..getAds(context: context)
                 ..getCat(context: context)
                 ..scrol()
@@ -71,7 +72,7 @@ class Home extends StatelessWidget {
           final localeCode = Localizations.localeOf(context).languageCode;
 
           return Scaffold(
-            backgroundColor: homeBackgroundColor,
+            backgroundColor: appPageColor(context),
             body: SafeArea(
               top: false,
               child: Column(
@@ -94,15 +95,16 @@ class Home extends StatelessWidget {
                                         duration: 400.ms,
                                         curve: Curves.easeOutCubic,
                                       ),
-                                  _buildSocialLinks(context)
-                                      .animate()
-                                      .fadeIn(delay: 80.ms, duration: 260.ms)
-                                      .slideY(
-                                        begin: 0.16,
-                                        end: 0,
-                                        duration: 360.ms,
-                                        curve: Curves.easeOutCubic,
-                                      ),
+                                  if (cubit.showSocialLinks)
+                                    _buildSocialLinks(context)
+                                        .animate()
+                                        .fadeIn(delay: 80.ms, duration: 260.ms)
+                                        .slideY(
+                                          begin: 0.16,
+                                          end: 0,
+                                          duration: 360.ms,
+                                          curve: Curves.easeOutCubic,
+                                        ),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(
                                       16,
@@ -146,7 +148,7 @@ class Home extends StatelessWidget {
                                                       ),
                                                   useHomeAppBar: false,
                                                 ),
-                                              ),
+                                              ), context: context,
                                         ),
                                         const SizedBox(height: 12),
                                         _buildCategories(
@@ -176,7 +178,7 @@ class Home extends StatelessWidget {
                                               () => navigateTo(
                                                 context,
                                                 const AllProductsPage(),
-                                              ),
+                                              ), context: context,
                                         ),
                                         const SizedBox(height: 14),
                                         _buildProducts(
@@ -198,10 +200,12 @@ class Home extends StatelessWidget {
                                       ],
                                     ),
                                   ),
+
                                 ],
                               ),
                             ),
                   ),
+                  SizedBox(height: 50),
                 ],
               ),
             ),
@@ -217,7 +221,7 @@ class Home extends StatelessWidget {
   Widget _buildSearchBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 5, 16, 16),
-      decoration: const BoxDecoration(color: homeTextColor),
+      decoration: BoxDecoration(color: appHeaderBackground(context)),
       child: GestureDetector(
         onTap: () => navigateTo(context, const SearchProductsPage()),
         child: Container(
@@ -249,7 +253,6 @@ class Home extends StatelessWidget {
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                     Text(
@@ -258,7 +261,6 @@ class Home extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.45),
                         fontSize: 10.5,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                   ],
@@ -450,7 +452,6 @@ class Home extends StatelessWidget {
                                                   color: homeTextColor,
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.w800,
-                                                  fontFamily: 'Cairo',
                                                 ),
                                               ),
                                             ),
@@ -465,7 +466,6 @@ class Home extends StatelessWidget {
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w800,
                                                 height: 1.25,
-                                                fontFamily: 'Cairo',
                                               ),
                                             ),
                                             const SizedBox(height: 6),
@@ -480,7 +480,6 @@ class Home extends StatelessWidget {
                                                 ),
                                                 fontSize: 9,
                                                 height: 1.5,
-                                                fontFamily: 'Cairo',
                                               ),
                                             ),
                                           ],
@@ -539,6 +538,7 @@ class Home extends StatelessWidget {
   // ─────────────────────────────────────────────────────
   Widget _buildSectionHeader({
     required String title,
+    required BuildContext context,
     String? actionLabel,
     VoidCallback? onTap,
   }) {
@@ -557,8 +557,8 @@ class Home extends StatelessWidget {
               ),
               child: Text(
                 actionLabel,
-                style: const TextStyle(
-                  color: homeAccentColor,
+                style:  TextStyle(
+                  color: appTextPrimary(context),
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),
@@ -573,8 +573,8 @@ class Home extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.end,
-                style: const TextStyle(
-                  color: homeTextColor,
+                style:  TextStyle(
+                  color: appTextPrimary(context),
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
                 ),
@@ -623,7 +623,7 @@ class Home extends StatelessWidget {
               width: 76,
               margin: const EdgeInsets.only(left: 4),
               decoration: BoxDecoration(
-                color: homeCardColor,
+                color: appSurface(context),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: homeBorderColor),
                 boxShadow: [
@@ -658,8 +658,8 @@ class Home extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: homeTextMutedColor,
+                      style:  TextStyle(
+                        color: appTextPrimary(context),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -705,6 +705,8 @@ class Home extends StatelessWidget {
           description: product.localizedDescription(localeCode),
           price: product.price,
           stock: product.stock,
+          colors: product.colors,
+          sizes: product.sizes,
           images: product.images,
           isFavorite: product.isFavorite,
           imageSeller: product.seller.image,
@@ -762,7 +764,6 @@ class _SocialLinkButton extends StatelessWidget {
                   color: Colors.white.withOpacity(0.68),
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ],

@@ -21,6 +21,8 @@ class AddProducts extends StatelessWidget {
   static TextEditingController descController = TextEditingController();
   static TextEditingController priceController = TextEditingController();
   static TextEditingController stockController = TextEditingController();
+  static TextEditingController colorsController = TextEditingController();
+  static TextEditingController sizesController = TextEditingController();
   static TextEditingController categoryIdController = TextEditingController();
   static TextEditingController subcategoryNameController =
       TextEditingController();
@@ -41,6 +43,8 @@ class AddProducts extends StatelessWidget {
             descController.clear();
             priceController.clear();
             stockController.clear();
+            colorsController.clear();
+            sizesController.clear();
             categoryIdController.clear();
             subcategoryNameController.clear();
             mainCategoryIdController.clear();
@@ -211,6 +215,22 @@ class AddProducts extends StatelessWidget {
                                   return null;
                                 },
                               ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: colorsController,
+                                hintText: 'الألوان اختيارية مثل: أحمر, أزرق',
+                                prefixIcon: Icons.palette_outlined,
+                                keyboardType: TextInputType.text,
+                                validate: (_) => null,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: sizesController,
+                                hintText: 'القياسات اختيارية مثل: S, M, L',
+                                prefixIcon: Icons.straighten_outlined,
+                                keyboardType: TextInputType.text,
+                                validate: (_) => null,
+                              ),
                               const SizedBox(height: 30),
                               ConditionalBuilder(
                                 condition: state is! AddProductsLoadingState,
@@ -225,6 +245,8 @@ class AddProducts extends StatelessWidget {
                                           stock: stockController.text.trim(),
                                           categoryId:
                                               categoryIdController.text.trim(),
+                                          colors: colorsController.text.trim(),
+                                          sizes: sizesController.text.trim(),
                                           context: context,
                                         );
                                       }
@@ -302,7 +324,7 @@ class AddProducts extends StatelessWidget {
   void _showMainCategoriesBottomSheet(BuildContext context, AdminCubit cubit) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: appSurface(context),
       builder: (context) {
         return ListView.builder(
           itemCount: cubit.mainCategories.length,
@@ -335,7 +357,7 @@ class AddProducts extends StatelessWidget {
     );
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: appSurface(context),
       builder: (context) {
         return ListView.builder(
           itemCount: subcategories.length,

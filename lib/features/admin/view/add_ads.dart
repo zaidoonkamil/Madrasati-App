@@ -40,6 +40,7 @@ class AddAds extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
+              backgroundColor: appPageColor(context),
               body: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Column(

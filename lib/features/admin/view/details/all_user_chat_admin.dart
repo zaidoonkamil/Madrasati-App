@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/ navigation/navigation.dart';
+import '../../../../core/styles/themes.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../cubit/chat/chat_admin.dart';
 
@@ -16,6 +17,7 @@ class AllUserChatAdmin extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Scaffold(
+          backgroundColor: appPageColor(context),
           body: Column(
             children: [
               const CustomAppBarBack(
@@ -53,9 +55,10 @@ class AllUserChatAdmin extends StatelessWidget {
                             child: Card(
                               margin: const EdgeInsets.symmetric(vertical: 6),
                               elevation: 2,
-                              color: Colors.white,
+                              color: appSurface(context),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: appBorder(context)),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(18.0),
@@ -68,7 +71,8 @@ class AllUserChatAdmin extends StatelessWidget {
                                       children: [
                                         Text(
                                           user['name'],
-                                          style: const TextStyle(
+                                          style: TextStyle(
+                                            color: appTextPrimary(context),
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
@@ -79,6 +83,9 @@ class AllUserChatAdmin extends StatelessWidget {
                                               : 'لا توجد رسائل بعد',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: appTextMuted(context),
+                                          ),
                                         ),
                                       ],
                                     ),

@@ -2,7 +2,6 @@ import 'package:madrasati_app/core/styles/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/ navigation/navigation.dart';
-import '../../../core/widgets/background.dart';
 import '../../../core/widgets/circular_progress.dart';
 import '../cubit/chat/controler.dart';
 
@@ -46,23 +45,27 @@ class _ChatState extends State<Chat> {
       child: BlocListener<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state is ChatLoaded) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _scrollToBottom(),
+            );
           }
-          if (state is ChatError) {
-
-          }
+          if (state is ChatError) {}
         },
         child: SafeArea(
           child: Scaffold(
+            backgroundColor: appPageColor(context),
             body: Stack(
               children: [
-                Background(),
+                ColoredBox(color: appPageColor(context)),
                 Column(
                   children: [
                     Container(
                       color: secondPrimaryColor,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -86,7 +89,6 @@ class _ChatState extends State<Chat> {
                               ),
                             ),
                             Container(width: 28),
-
                           ],
                         ),
                       ),
@@ -96,8 +98,11 @@ class _ChatState extends State<Chat> {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: BlocBuilder<ChatCubit, ChatState>(
                           builder: (context, state) {
-                            if (state is ChatConnecting ||state is ChatLoading) {
-                              return const Center(child: CircularProgressIndicator());
+                            if (state is ChatConnecting ||
+                                state is ChatLoading) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
                             } else if (state is ChatLoaded) {
                               var messages = state.messages;
                               return ListView.builder(
@@ -105,63 +110,101 @@ class _ChatState extends State<Chat> {
                                 itemCount: messages.length,
                                 itemBuilder: (context, index) {
                                   final msg = messages[index];
-                                  final isSender = msg['senderId'] == widget.userId;
+                                  final isSender =
+                                      msg['senderId'] == widget.userId;
                                   return Align(
-                                    alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+                                    alignment:
+                                        isSender
+                                            ? Alignment.centerRight
+                                            : Alignment.centerLeft,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
-                                        isSender == false? Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor: Colors.blueAccent,
-                                              child: Text(
-                                                'اد'.toUpperCase(),
-                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                          ],
-                                        ):Container(),
+                                        isSender == false
+                                            ? Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 20,
+                                                  backgroundColor:
+                                                      Colors.blueAccent,
+                                                  child: Text(
+                                                    'اد'.toUpperCase(),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            )
+                                            : Container(),
                                         Flexible(
                                           child: Container(
-                                            margin: const EdgeInsets.symmetric(vertical: 4),
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 4,
+                                            ),
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: isSender ? primaryColor : Colors.grey[300],
-                                              borderRadius: isSender ?const BorderRadius.only(
-                                                topLeft: Radius.circular(14),
-                                                topRight: Radius.circular(14),
-                                                bottomLeft: Radius.circular(14),
-                                              ):BorderRadius.only(
-                                                topLeft: Radius.circular(14),
-                                                topRight: Radius.circular(14),
-                                                bottomRight: Radius.circular(14),
+                                              color:
+                                                  isSender
+                                                      ? primaryColor
+                                                      : appSurface(context),
+                                              border: Border.all(
+                                                color:
+                                                    isSender
+                                                        ? primaryColor
+                                                        : appBorder(context),
                                               ),
+                                              borderRadius:
+                                                  isSender
+                                                      ? const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(14),
+                                                        topRight:
+                                                            Radius.circular(14),
+                                                        bottomLeft:
+                                                            Radius.circular(14),
+                                                      )
+                                                      : BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(14),
+                                                        topRight:
+                                                            Radius.circular(14),
+                                                        bottomRight:
+                                                            Radius.circular(14),
+                                                      ),
                                             ),
                                             child: Text(
                                               msg['message'],
                                               style: TextStyle(
-                                                color: isSender ? Colors.white : Colors.black87,
+                                                color:
+                                                    isSender
+                                                        ? Colors.white
+                                                        : appTextPrimary(
+                                                          context,
+                                                        ),
                                               ),
                                               textAlign: TextAlign.end,
                                               softWrap: true,
                                             ),
                                           ),
                                         ),
-                                        isSender? Row(
-                                          children: [
-                                            const SizedBox(width: 8),
-                                            Image.asset(
-                                              'assets/images/Mask group.png',
-                                              width: 40,
-                                              height: 40,
-                                            ),
-                                          ],
-                                        ):Container(),
-
+                                        isSender
+                                            ? Row(
+                                              children: [
+                                                const SizedBox(width: 8),
+                                                Image.asset(
+                                                  'assets/images/Mask group.png',
+                                                  width: 40,
+                                                  height: 40,
+                                                ),
+                                              ],
+                                            )
+                                            : Container(),
                                       ],
                                     ),
                                   );
@@ -186,7 +229,6 @@ class _ChatState extends State<Chat> {
     );
   }
 }
-
 
 class _MessageInput extends StatefulWidget {
   @override
@@ -223,9 +265,10 @@ class _MessageInputState extends State<_MessageInput> {
         child: Row(
           children: [
             InkWell(
-                onTap: () => _send(context),
-                child: Image.asset('assets/images/akar-icons_send.png')),
-            SizedBox(width: 8,),
+              onTap: () => _send(context),
+              child: Image.asset('assets/images/akar-icons_send.png'),
+            ),
+            SizedBox(width: 8),
             Expanded(
               child: TextField(
                 controller: _controller,

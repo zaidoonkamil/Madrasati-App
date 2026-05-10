@@ -43,6 +43,8 @@ class ProductCat {
   String? descriptionAr;
   int price;
   int stock;
+  List<String> colors;
+  List<String> sizes;
   List<String> images;
   DateTime createdAt;
   DateTime updatedAt;
@@ -59,6 +61,8 @@ class ProductCat {
     this.descriptionAr,
     required this.price,
     required this.stock,
+    required this.colors,
+    required this.sizes,
     required this.images,
     required this.createdAt,
     required this.updatedAt,
@@ -87,6 +91,16 @@ class ProductCat {
     return DateTime.now();
   }
 
+  static List<String> _asStringList(dynamic value) {
+    if (value is List) {
+      return value
+          .map((item) => item.toString().trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    return <String>[];
+  }
+
   factory ProductCat.fromJson(Map<String, dynamic> json) => ProductCat(
     id: _asInt(json["id"]),
     title: _asString(json["title"]),
@@ -101,6 +115,8 @@ class ProductCat {
             : _asString(json["description_ar"]),
     price: _asInt(json["price"]),
     stock: _asInt(json["stock"]),
+    colors: _asStringList(json["colors"]),
+    sizes: _asStringList(json["sizes"]),
     images: List<String>.from((json["images"] ?? []).map((x) => x.toString())),
     createdAt: _asDate(json["createdAt"]),
     updatedAt: _asDate(json["updatedAt"]),
@@ -118,6 +134,8 @@ class ProductCat {
     "description_ar": descriptionAr,
     "price": price,
     "stock": stock,
+    "colors": colors,
+    "sizes": sizes,
     "images": List<dynamic>.from(images.map((x) => x)),
     "createdAt": createdAt.toIso8601String(),
     "updatedAt": updatedAt.toIso8601String(),

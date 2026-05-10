@@ -19,13 +19,11 @@ import '../model/ProfileModel.dart';
 // ═══════════════════════════════════════════════════════
 //  PALETTE (matches Home page)
 // ═══════════════════════════════════════════════════════
-const _cream = appBackgroundColor;
 const _inkDeep = appTextPrimaryColor;
 const _inkMid = appTextSecondaryColor;
 const _accentAmber = appAccentColor;
 const _accentGreen = appSuccessColor;
 const _accentRose = appDangerColor;
-const _cardBg = appSurfaceColor;
 const _softGray = appMutedSurfaceColor;
 const _textMuted = appTextMutedColor;
 
@@ -35,7 +33,12 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserCubit()..getProfile(context: context),
+      create:
+          (context) =>
+              UserCubit()
+                ..getProfile(context: context)
+                ..getFaqs(context: context)
+                ..getCustomRequests(context: context),
       child: BlocConsumer<UserCubit, UserStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -44,7 +47,7 @@ class Profile extends StatelessWidget {
           final bool isAdmin = adminOrUser == 'admin';
 
           return Scaffold(
-            backgroundColor: _cream,
+            backgroundColor: appPageColor(context),
             body: SafeArea(
               top: false,
               child: Column(
@@ -159,6 +162,67 @@ class Profile extends StatelessWidget {
                             const SizedBox(height: 10),
 
                             // ── Login / Logout ──
+                            _ActionTile(
+                              title: 'الأسئلة الشائعة',
+                              subtitle: 'أجوبة سريعة على أكثر الأسئلة تكراراً',
+                              icon: Iconsax.message_question,
+                              accentColor: _accentGreen,
+                              onTap: () => _showFaqsDialog(context, cubit),
+                            ).animate().fadeIn(delay: 220.ms, duration: 260.ms),
+
+                            if (!isAdmin) ...[
+                              const SizedBox(height: 10),
+                              _ActionTile(
+                                title: 'الطلبات المخصصة',
+                                subtitle: 'اكتب وصف الشيء الذي تحتاجه',
+                                icon: Iconsax.note_text,
+                                accentColor: _inkDeep,
+                                onTap: () {
+                                  if (!isLoggedIn) {
+                                    showToastInfo(
+                                      text: 'يجب عليك تسجيل الدخول أولاً',
+                                      context: context,
+                                    );
+                                    return;
+                                  }
+                                  _showCustomRequestDialog(context, cubit);
+                                },
+                              ),
+                            ],
+
+                            const SizedBox(height: 10),
+
+                            AnimatedBuilder(
+                              animation: AppThemeController.instance,
+                              builder: (context, _) {
+                                final isDark =
+                                    AppThemeController.instance.isDark;
+                                return _ActionTile(
+                                  title: 'وضع التطبيق',
+                                  subtitle:
+                                      isDark
+                                          ? 'الوضع الداكن مفعل'
+                                          : 'الوضع الفاتح مفعل',
+                                  icon: isDark ? Iconsax.moon : Iconsax.sun_1,
+                                  accentColor: _accentAmber,
+                                  trailing: Switch.adaptive(
+                                    value: isDark,
+                                    activeColor: _accentAmber,
+                                    onChanged:
+                                        (_) =>
+                                            AppThemeController.instance
+                                                .toggleTheme(),
+                                  ),
+                                  onTap:
+                                      () =>
+                                          AppThemeController.instance
+                                              .toggleTheme(),
+                                );
+                              },
+                            ).animate().fadeIn(delay: 230.ms, duration: 260.ms),
+
+                            const SizedBox(height: 10),
+
                             if (isLoggedIn)
                               _ActionTile(
                                     title: 'تسجيل الخروج',
@@ -216,13 +280,111 @@ class Profile extends StatelessWidget {
     );
   }
 
+  void _showFaqsDialog(BuildContext context, UserCubit cubit) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: appSurface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (_) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'الأسئلة الشائعة',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 12),
+                  if (cubit.faqs.isEmpty)
+                    const Text('لا توجد أسئلة حالياً')
+                  else
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: cubit.faqs.length,
+                        separatorBuilder: (_, __) => const Divider(),
+                        itemBuilder: (_, index) {
+                          final faq = cubit.faqs[index];
+                          return ExpansionTile(
+                            tilePadding: EdgeInsets.zero,
+                            title: Text(
+                              faq['question']?.toString() ?? '',
+                              textAlign: TextAlign.end,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            children: [
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  faq['answer']?.toString() ?? '',
+                                  textAlign: TextAlign.end,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  void _showCustomRequestDialog(BuildContext context, UserCubit cubit) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            backgroundColor: appSurface(context),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            title: const Text('طلب مخصص', textAlign: TextAlign.end),
+            content: TextField(
+              controller: controller,
+              maxLines: 5,
+              textAlign: TextAlign.end,
+              decoration: const InputDecoration(
+                hintText: 'اكتب وصف الشيء الذي تريده',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('إلغاء'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  cubit.addCustomRequest(
+                    context: context,
+                    description: controller.text,
+                  );
+                },
+                child: const Text('إرسال'),
+              ),
+            ],
+          ),
+    );
+  }
+
   void _showDeleteDialog(BuildContext context, UserCubit cubit) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (dialogContext) => Dialog(
-            backgroundColor: _cardBg,
+            backgroundColor: appSurface(context),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -251,7 +413,6 @@ class Profile extends StatelessWidget {
                       color: _inkDeep,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -262,7 +423,6 @@ class Profile extends StatelessWidget {
                       color: _textMuted,
                       fontSize: 13,
                       height: 1.6,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -283,7 +443,6 @@ class Profile extends StatelessWidget {
                                 style: TextStyle(
                                   color: _inkMid,
                                   fontWeight: FontWeight.w700,
-                                  fontFamily: 'Cairo',
                                 ),
                               ),
                             ),
@@ -306,7 +465,6 @@ class Profile extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontFamily: 'Cairo',
                                 ),
                               ),
                             ),
@@ -342,33 +500,6 @@ class _ProfileHeader extends StatelessWidget {
       child: Row(
         children: [
           // Actions column
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _accentAmber.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _accentAmber.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: const Text(
-                  'عميل مميز',
-                  style: TextStyle(
-                    color: _accentAmber,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Cairo',
-                  ),
-                ),
-              ),
-            ],
-          ),
-
           const SizedBox(width: 12),
 
           // Name & phone
@@ -383,7 +514,6 @@ class _ProfileHeader extends StatelessWidget {
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    fontFamily: 'Cairo',
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -395,7 +525,6 @@ class _ProfileHeader extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.60),
                         fontSize: 12,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -479,7 +608,6 @@ class _GuestHeader extends StatelessWidget {
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    fontFamily: 'Cairo',
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -490,7 +618,6 @@ class _GuestHeader extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.50),
                     fontSize: 11,
                     height: 1.6,
-                    fontFamily: 'Cairo',
                   ),
                 ),
               ],
@@ -549,9 +676,9 @@ class _StatsRow extends StatelessWidget {
                 margin: EdgeInsets.only(left: 8),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: _cardBg,
+                  color: appSurface(context),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: _softGray),
+                  border: Border.all(color: _inkDeep),
                 ),
                 child: Column(
                   children: [
@@ -559,20 +686,15 @@ class _StatsRow extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       s.value,
-                      style: const TextStyle(
-                        color: _inkDeep,
+                      style:  TextStyle(
+                        color: appTextPrimary(context),
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                     Text(
                       s.label,
-                      style: const TextStyle(
-                        color: _textMuted,
-                        fontSize: 10,
-                        fontFamily: 'Cairo',
-                      ),
+                      style: TextStyle(color: appTextMuted(context), fontSize: 10),
                     ),
                   ],
                 ),
@@ -597,11 +719,10 @@ class _SectionLabel extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: _inkDeep,
+          style:  TextStyle(
+            color: appTextPrimary(context),
             fontSize: 15,
             fontWeight: FontWeight.w900,
-            fontFamily: 'Cairo',
           ),
         ),
         const SizedBox(width: 7),
@@ -628,6 +749,7 @@ class _ActionTile extends StatelessWidget {
     required this.icon,
     required this.onTap,
     this.accentColor = _accentAmber,
+    this.trailing,
   });
 
   final String title;
@@ -635,6 +757,7 @@ class _ActionTile extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color accentColor;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -644,12 +767,12 @@ class _ActionTile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         decoration: BoxDecoration(
-          color: _cardBg,
+          color: appSurface(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _softGray),
+          border: Border.all(color: appBorder(context)),
           boxShadow: [
             BoxShadow(
-              color: _inkDeep.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -657,8 +780,12 @@ class _ActionTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Arrow
-            Icon(Iconsax.arrow_left_2, color: _textMuted, size: 16),
+            trailing ??
+                Icon(
+                  Iconsax.arrow_left_2,
+                  color: appTextMuted(context),
+                  size: 16,
+                ),
             const Spacer(),
             // Text
             Expanded(
@@ -669,22 +796,20 @@ class _ActionTile extends StatelessWidget {
                   Text(
                     title,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: _inkDeep,
+                    style: TextStyle(
+                      color: appTextPrimary(context),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: _textMuted,
+                    style: TextStyle(
+                      color: appTextMuted(context),
                       fontSize: 10.5,
                       height: 1.5,
-                      fontFamily: 'Cairo',
                     ),
                   ),
                 ],
@@ -735,7 +860,6 @@ class _LoginButton extends StatelessWidget {
                 color: _inkDeep,
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
-                fontFamily: 'Cairo',
               ),
             ),
           ],

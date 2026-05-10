@@ -38,7 +38,7 @@ class AllCategoriesPage extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: pageBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   useHomeAppBar
@@ -95,9 +95,11 @@ class AllCategoriesPage extends StatelessWidget {
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: cardSurfaceColor,
+                                      color: appSurface(context),
                                       borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: borderColor),
+                                      border: Border.all(
+                                        color: appBorder(context),
+                                      ),
                                     ),
                                     child: Column(
                                       children: [
@@ -109,12 +111,16 @@ class AllCategoriesPage extends StatelessWidget {
                                             child:
                                                 cleanImageUrl.isEmpty
                                                     ? Container(
-                                                      color: mutedSurfaceColor,
+                                                      color: appMutedSurface(
+                                                        context,
+                                                      ),
                                                       alignment:
                                                           Alignment.center,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                         Icons.category_outlined,
-                                                        color: secondTextColor,
+                                                        color: appTextMuted(
+                                                          context,
+                                                        ),
                                                         size: 32,
                                                       ),
                                                     )

@@ -20,7 +20,7 @@ class SubCategoriesPage extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Scaffold(
-        backgroundColor: pageBackgroundColor,
+        backgroundColor: appPageColor(context),
         body: Column(
           children: [
             CustomAppBarBack(
@@ -36,8 +36,8 @@ class SubCategoriesPage extends StatelessWidget {
                           child: Text(
                             'لا توجد نتائج مطابقة',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: secondTextColor,
+                            style: TextStyle(
+                              color: appTextMuted(context),
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                             ),
@@ -79,9 +79,9 @@ class SubCategoriesPage extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: cardSurfaceColor,
+                                color: appSurface(context),
                                 borderRadius: BorderRadius.circular(18),
-                                border: Border.all(color: borderColor),
+                                border: Border.all(color: appBorder(context)),
                               ),
                               child: Column(
                                 children: [
@@ -91,11 +91,11 @@ class SubCategoriesPage extends StatelessWidget {
                                       child:
                                           cleanImageUrl.isEmpty
                                               ? Container(
-                                                color: mutedSurfaceColor,
+                                                color: appMutedSurface(context),
                                                 alignment: Alignment.center,
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.widgets_outlined,
-                                                  color: secondTextColor,
+                                                  color: appTextMuted(context),
                                                   size: 32,
                                                 ),
                                               )

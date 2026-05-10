@@ -30,7 +30,7 @@ class Details extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: appBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBarAdmin(),
@@ -111,6 +111,7 @@ class Details extends StatelessWidget {
                                 ),
                               ],
                             ),
+                            SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -137,7 +138,8 @@ class Details extends StatelessWidget {
         width: (MediaQuery.of(context).size.width / 2) - 24,
         height: 120,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: appSurface(context),
+          border: Border.all(color: appBorder(context)),
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
@@ -155,7 +157,11 @@ class Details extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: appTextPrimary(context),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

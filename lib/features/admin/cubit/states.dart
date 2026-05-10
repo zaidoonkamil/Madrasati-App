@@ -42,6 +42,18 @@ class UpdateProductsSuccessState extends AdminStates {}
 
 class UpdateProductsErrorState extends AdminStates {}
 
+class SocialSettingsLoadingState extends AdminStates {}
+
+class SocialSettingsSuccessState extends AdminStates {}
+
+class SocialSettingsErrorState extends AdminStates {}
+
+class CouponsLoadingState extends AdminStates {}
+
+class CouponsSuccessState extends AdminStates {}
+
+class CouponsErrorState extends AdminStates {}
+
 class GetCatLoadingState extends AdminStates {}
 
 class GetCatSuccessState extends AdminStates {}

@@ -35,6 +35,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBarBack(
@@ -87,9 +88,9 @@ class DetailsOrdersAdmin extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: const EdgeInsets.symmetric(horizontal: 22),
       decoration: BoxDecoration(
-        border: Border.all(color: borderColor, width: 1),
+        border: Border.all(color: appBorder(context), width: 1),
         borderRadius: BorderRadius.circular(8),
-        color: containerColor,
+        color: appSurface(context),
       ),
       child: Column(
         children: [
@@ -126,24 +127,24 @@ class DetailsOrdersAdmin extends StatelessWidget {
                     _buildInfoLine(
                       formattedDate,
                       'تم الطلب',
-                      valueStyle: const TextStyle(
-                        color: secondTextColor,
+                      valueStyle: TextStyle(
+                        color: appTextMuted(context),
                         fontSize: 12,
                       ),
-                      labelStyle: const TextStyle(
-                        color: secondTextColor,
+                      labelStyle: TextStyle(
+                        color: appTextMuted(context),
                         fontSize: 12,
                       ),
                     ),
                     _buildInfoLine(
                       order.totalItems.toString(),
                       'عدد الطلبات',
-                      valueStyle: const TextStyle(
-                        color: Colors.black,
+                      valueStyle: TextStyle(
+                        color: appTextPrimary(context),
                         fontSize: 13,
                       ),
-                      labelStyle: const TextStyle(
-                        color: secondTextColor,
+                      labelStyle: TextStyle(
+                        color: appTextMuted(context),
                         fontSize: 13,
                       ),
                     ),
@@ -168,7 +169,21 @@ class DetailsOrdersAdmin extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (order.discountAmount > 0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'خصم ${NumberFormat('#,###').format(order.discountAmount)} د.ع${order.couponCode == null ? '' : ' - ${order.couponCode}'}',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          color: appSuccessColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                     Text(order.phone, textAlign: TextAlign.end),
+                    if (order.secondaryPhone.isNotEmpty)
+                      Text(order.secondaryPhone, textAlign: TextAlign.end),
                     Text(order.address, textAlign: TextAlign.end),
                     const SizedBox(height: 4),
                     Container(
@@ -177,14 +192,14 @@ class DetailsOrdersAdmin extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: mutedSurfaceColor,
+                        color: appMutedSurface(context),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         deliveryTypeLabel(order.deliveryType),
                         textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          color: appTextPrimaryColor,
+                        style: TextStyle(
+                          color: appTextPrimary(context),
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),
@@ -252,7 +267,11 @@ class DetailsOrdersAdmin extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Container(width: double.maxFinite, height: 1, color: Colors.grey),
+          Container(
+            width: double.maxFinite,
+            height: 1,
+            color: appBorder(context),
+          ),
           const SizedBox(height: 8),
           SizedBox(
             height: 96,
@@ -266,7 +285,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
                 final hasImage = item.productAgent.images.isNotEmpty;
 
                 return SizedBox(
-                  width: 260,
+                  width: 270,
                   child: Row(
                     children: [
                       Text('${i + 1}#'),
@@ -277,13 +296,18 @@ class DetailsOrdersAdmin extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.grey.shade300,
+                              color: appBorder(context),
                               width: 1.5,
                             ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              Text(
+                                'ID: ${item.productAgent.id}',
+                                textAlign: TextAlign.end,
+                                style: const TextStyle(fontSize: 11),
+                              ),
                               if (hasImage)
                                 Image.network(
                                   '$url/uploads/${item.productAgent.images[0]}',
@@ -294,7 +318,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
                                 Container(
                                   width: 60,
                                   height: 60,
-                                  color: Colors.grey.shade200,
+                                  color: appMutedSurface(context),
                                   alignment: Alignment.center,
                                   child: const Icon(
                                     Icons.image_not_supported_outlined,
@@ -313,6 +337,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
                                       textAlign: TextAlign.end,
                                       style: const TextStyle(height: 1.3),
                                     ),
+
                                     const SizedBox(height: 4),
                                     Text(
                                       'السعر : ${item.priceAtOrder}',
@@ -384,7 +409,7 @@ class DetailsOrdersAdmin extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: appSurface(context),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

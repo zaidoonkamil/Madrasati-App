@@ -50,7 +50,7 @@ class WhatsAppAdminPage extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: appBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBarBack(
@@ -391,9 +391,9 @@ class _QrCard extends StatelessWidget {
               height: 230,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F8FA),
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: borderColor),
+                border: Border.all(color: appBorder(context)),
               ),
               child:
                   qrBytes != null
@@ -404,8 +404,8 @@ class _QrCard extends StatelessWidget {
                               ? 'واتساب متصل بالفعل'
                               : 'اضغط "تشغيل" ثم "جلب QR"',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: secondTextColor,
+                          style: TextStyle(
+                            color: appTextMuted(context),
                             fontWeight: FontWeight.w600,
                           ),
                         ),

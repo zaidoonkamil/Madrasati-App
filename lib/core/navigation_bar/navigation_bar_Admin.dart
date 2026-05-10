@@ -53,35 +53,50 @@ class _BottomNavBarAdminState extends State<BottomNavBarAdmin> {
                 color: bottomNavigationSafeColor,
                 child: SafeArea(
                   top: false,
-                  child: SizedBox(
-                    height: 68,
-                    child: Row(
-                      children: [
-                        _AdminNavItem(
-                          label: 'حسابي',
-                          icon: Iconsax.user_octagon,
-                          selected: _selectedIndex == 0,
-                          onTap: () => setState(() => _selectedIndex = 0),
-                        ),
-                        _AdminNavItem(
-                          label: 'الإعدادات',
-                          icon: Iconsax.setting,
-                          selected: _selectedIndex == 1,
-                          onTap: () => setState(() => _selectedIndex = 1),
-                        ),
-                        _AdminNavItem(
-                          label: 'الطلبات',
-                          icon: Iconsax.box,
-                          selected: _selectedIndex == 2,
-                          onTap: () => setState(() => _selectedIndex = 2),
-                        ),
-                        _AdminNavItem(
-                          label: 'الرئيسية',
-                          icon: Iconsax.home,
-                          selected: _selectedIndex == 3,
-                          onTap: () => setState(() => _selectedIndex = 3),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(
+                            0xFF111228,
+                          ).withValues(alpha: 0.24),
+                          blurRadius: 26,
+                          spreadRadius: -4,
+                          offset: const Offset(0, 12),
                         ),
                       ],
+                    ),
+                    child: Container(
+                      height: 74,
+                      color: bottomNavigationSafeColor,
+                      child: Row(
+                        children: [
+                          _AdminNavItem(
+                            label: 'حسابي',
+                            icon: Iconsax.user_octagon,
+                            selected: _selectedIndex == 0,
+                            onTap: () => setState(() => _selectedIndex = 0),
+                          ),
+                          _AdminNavItem(
+                            label: 'الإعدادات',
+                            icon: Iconsax.setting,
+                            selected: _selectedIndex == 1,
+                            onTap: () => setState(() => _selectedIndex = 1),
+                          ),
+                          _AdminNavItem(
+                            label: 'الطلبات',
+                            icon: Iconsax.box,
+                            selected: _selectedIndex == 2,
+                            onTap: () => setState(() => _selectedIndex = 2),
+                          ),
+                          _AdminNavItem(
+                            label: 'الرئيسية',
+                            icon: Iconsax.home,
+                            selected: _selectedIndex == 3,
+                            onTap: () => setState(() => _selectedIndex = 3),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -109,51 +124,53 @@ class _AdminNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color =
+        selected ? appAdminAccentColor : Colors.white.withValues(alpha: 0.46);
+
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 280),
+          duration: const Duration(milliseconds: 260),
           curve: Curves.easeOutCubic,
-          height: 58,
+          height: 66,
           margin: const EdgeInsets.symmetric(horizontal: 3),
-          child: Stack(
-            alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 280),
-                curve: Curves.easeOutCubic,
-                bottom: selected ? 5 : 0,
-                child: AnimatedContainer(
+              Tooltip(
+                message: label,
+                child: AnimatedScale(
                   duration: const Duration(milliseconds: 220),
-                  width: selected ? 4 : 0,
-                  height: selected ? 4 : 0,
-                  decoration: const BoxDecoration(
-                    color: appAdminAccentColor,
-                    shape: BoxShape.circle,
-                  ),
+                  curve: Curves.easeOutCubic,
+                  scale: selected ? 1.08 : 1,
+                  child: Icon(icon, color: color, size: 22),
                 ),
               ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 280),
+              const SizedBox(height: 5),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
-                top: selected ? 13 : 17,
-                child: Tooltip(
-                  message: label,
-                  child: AnimatedScale(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    scale: selected ? 1.08 : 1,
-                    child: Icon(
-                      icon,
-                      color:
-                          selected
-                              ? appAdminAccentColor
-                              : Colors.white.withValues(alpha: 0.36),
-                      size: 22,
-                    ),
-                  ),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10.5,
+                  fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+                ),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 5),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: selected ? 4 : 0,
+                height: selected ? 4 : 0,
+                decoration: const BoxDecoration(
+                  color: appAdminAccentColor,
+                  shape: BoxShape.circle,
                 ),
               ),
             ],

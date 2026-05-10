@@ -29,6 +29,63 @@ class UserCubit extends Cubit<UserStates> {
     emit(ValidationState());
   }
 
+  List<Map<String, dynamic>> faqs = [];
+  List<Map<String, dynamic>> customRequests = [];
+
+  List<Map<String, dynamic>> _parseList(dynamic data) {
+    if (data is List) {
+      return data
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  void getFaqs({required BuildContext context}) {
+    DioHelper.getData(url: '/faqs')
+        .then((value) {
+          faqs = _parseList(value.data);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر جلب الأسئلة', context: context);
+        });
+  }
+
+  void getCustomRequests({required BuildContext context}) {
+    if (id.isEmpty) return;
+    DioHelper.getData(url: '/custom-requests/user/$id')
+        .then((value) {
+          customRequests = _parseList(value.data);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر جلب الطلبات المخصصة', context: context);
+        });
+  }
+
+  void addCustomRequest({
+    required BuildContext context,
+    required String description,
+  }) {
+    if (description.trim().isEmpty) {
+      showToastInfo(text: 'اكتب وصف الطلب أولاً', context: context);
+      return;
+    }
+    DioHelper.postData(
+          url: '/custom-requests',
+          data: {'userId': id, 'description': description.trim()},
+        )
+        .then((_) {
+          showToastSuccess(text: 'تم إرسال الطلب المخصص', context: context);
+          getCustomRequests(context: context);
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر إرسال الطلب', context: context);
+        });
+  }
+
   int getTotalPrice() {
     int total = 0;
     for (var item in basketModel) {
@@ -53,6 +110,70 @@ class UserCubit extends Cubit<UserStates> {
 
   int quantity = 1;
   bool showTick = false;
+  String? selectedProductColor;
+  String? selectedProductSize;
+
+  void selectProductColor(String value) {
+    selectedProductColor = value;
+    emit(ValidationState());
+  }
+
+  String? appliedCouponCode;
+  int couponDiscount = 0;
+
+  int getFinalTotalPrice() {
+    final total = getTotalPrice() - couponDiscount;
+    return total < 0 ? 0 : total;
+  }
+
+  void clearCoupon() {
+    appliedCouponCode = null;
+    couponDiscount = 0;
+    emit(ValidationState());
+  }
+
+  void applyCoupon({required BuildContext context, required String code}) {
+    final cleanCode = code.trim();
+    if (cleanCode.isEmpty) {
+      showToastInfo(text: 'اكتب رمز الكوبون أولاً', context: context);
+      return;
+    }
+
+    emit(ApplyCouponLoadingState());
+    DioHelper.postData(
+          url: '/coupons/validate',
+          data: {
+            'code': cleanCode,
+            'userId': id,
+            'totalPrice': getTotalPrice(),
+          },
+        )
+        .then((value) {
+          appliedCouponCode = value.data['code']?.toString();
+          final discount = value.data['discountAmount'];
+          couponDiscount =
+              discount is num
+                  ? discount.round()
+                  : int.tryParse('$discount') ?? 0;
+          showToastSuccess(text: 'تم تطبيق الكوبون', context: context);
+          emit(ApplyCouponSuccessState());
+        })
+        .catchError((error) {
+          if (error is DioError) {
+            showToastError(
+              text:
+                  error.response?.data['error']?.toString() ?? error.toString(),
+              context: context,
+            );
+          }
+          emit(ApplyCouponErrorState());
+        });
+  }
+
+  void selectProductSize(String value) {
+    selectedProductSize = value;
+    emit(ValidationState());
+  }
 
   void add() {
     quantity++;
@@ -97,6 +218,20 @@ class UserCubit extends Cubit<UserStates> {
   }
 
   List<GetAds> getAdsModel = [];
+  bool showSocialLinks = true;
+
+  void getSocialSettings({required BuildContext context}) {
+    DioHelper.getData(url: '/app-settings/social')
+        .then((value) {
+          showSocialLinks = value.data['showSocialLinks'] != false;
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showSocialLinks = true;
+          emit(ValidationState());
+        });
+  }
+
   void getAds({required BuildContext context}) {
     emit(GetAdsLoadingState());
     DioHelper.getData(url: '/ads')
@@ -495,12 +630,20 @@ class UserCubit extends Cubit<UserStates> {
   void addToBasket({
     required String productId,
     required String quantity,
+    String? selectedColor,
+    String? selectedSize,
     required BuildContext context,
   }) {
     emit(AddToBasketLoadingState());
     DioHelper.postData(
           url: '/basket',
-          data: {'productId': productId, 'quantity': quantity, 'userId': id},
+          data: {
+            'productId': productId,
+            'quantity': quantity,
+            'userId': id,
+            if (selectedColor != null) 'selectedColor': selectedColor,
+            if (selectedSize != null) 'selectedSize': selectedSize,
+          },
         )
         .then((value) {
           emit(AddToBasketSuccessState());
@@ -522,18 +665,24 @@ class UserCubit extends Cubit<UserStates> {
   addOrder({
     required BuildContext context,
     required String phone,
+    String? secondaryPhone,
     required String location,
     required String deliveryType,
     required List<Map<String, dynamic>> products,
+    String? couponCode,
   }) {
     emit(AddOrderLoadingState());
     DioHelper.postData(
           url: '/orders/$id',
           data: {
             'phone': phone,
+            if (secondaryPhone != null && secondaryPhone.trim().isNotEmpty)
+              'secondaryPhone': secondaryPhone.trim(),
             'address': location,
             'deliveryType': deliveryType,
             'products': products,
+            if (couponCode != null && couponCode.trim().isNotEmpty)
+              'couponCode': couponCode.trim(),
           },
         )
         .then((value) {

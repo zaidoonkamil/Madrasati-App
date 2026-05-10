@@ -12,17 +12,16 @@ import '../../../core/widgets/custom_text_field.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
 
-const _cream = appBackgroundColor;
 const _inkDeep = appTextPrimaryColor;
 const _accentAmber = appAccentColor;
-const _cardBg = appSurfaceColor;
 const _softGray = appMutedSurfaceColor;
 const _textMuted = appTextMutedColor;
 
 class CompleteShopping extends StatefulWidget {
-  const CompleteShopping({super.key, required this.items});
+  const CompleteShopping({super.key, required this.items, this.couponCode});
 
   final List<Map<String, dynamic>> items;
+  final String? couponCode;
 
   @override
   State<CompleteShopping> createState() => _CompleteShoppingState();
@@ -51,6 +50,8 @@ class _CompleteShoppingState extends State<CompleteShopping> {
 
   static GlobalKey<FormState> formKey = GlobalKey<FormState>();
   static TextEditingController phoneController = TextEditingController();
+  static TextEditingController secondaryPhoneController =
+      TextEditingController();
   static TextEditingController locationController = TextEditingController();
 
   @override
@@ -72,6 +73,7 @@ class _CompleteShoppingState extends State<CompleteShopping> {
 
           if (state is AddOrderSuccessState) {
             phoneController.text = '';
+            secondaryPhoneController.text = '';
             locationController.text = '';
             showSuccessSnackBar(context, 'تمت عملية الطلب بنجاح');
             navigateAndFinish(context, const BottomNavBar());
@@ -81,7 +83,7 @@ class _CompleteShoppingState extends State<CompleteShopping> {
           final cubit = UserCubit.get(context);
 
           return Scaffold(
-            backgroundColor: _cream,
+            backgroundColor: appPageColor(context),
             body: SafeArea(
               top: false,
               child: Column(
@@ -111,6 +113,8 @@ class _CompleteShoppingState extends State<CompleteShopping> {
                             const SizedBox(height: 14),
                             _AddressForm(
                               phoneController: phoneController,
+                              secondaryPhoneController:
+                                  secondaryPhoneController,
                               locationController: locationController,
                               deliveryType: _selectedDeliveryType,
                             ),
@@ -135,6 +139,7 @@ class _CompleteShoppingState extends State<CompleteShopping> {
                         cubit.addOrder(
                           context: context,
                           phone: phoneController.text.trim(),
+                          secondaryPhone: secondaryPhoneController.text.trim(),
                           location:
                               _selectedDeliveryType == deliveryTypePickup
                                   ? (locationController.text.trim().isEmpty
@@ -143,6 +148,7 @@ class _CompleteShoppingState extends State<CompleteShopping> {
                                   : locationController.text.trim(),
                           deliveryType: _selectedDeliveryType,
                           products: widget.items,
+                          couponCode: widget.couponCode,
                         );
                       }
                     },
@@ -280,9 +286,9 @@ class _PaymentCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _softGray),
+        border: Border.all(color: appBorder(context)),
         boxShadow: [
           BoxShadow(
             color: _inkDeep.withValues(alpha: 0.04),
@@ -309,10 +315,10 @@ class _PaymentCard extends StatelessWidget {
               children: [
                 Text(
                   'طريقة الدفع',
-                  style: const TextStyle(
+                  style:  TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
-                    color: _inkDeep,
+                    color: appTextPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -358,9 +364,9 @@ class _DeliveryOptionsCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _softGray),
+        border: Border.all(color: appBorder(context)),
         boxShadow: [
           BoxShadow(
             color: _inkDeep.withValues(alpha: 0.04),
@@ -372,11 +378,11 @@ class _DeliveryOptionsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const Text(
+           Text(
             'طريقة الاستلام',
             style: TextStyle(
               fontSize: 16,
-              color: _inkDeep,
+              color: appTextPrimary(context),
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -419,7 +425,7 @@ class _DeliveryOptionTile extends StatelessWidget {
           color:
               selected
                   ? _accentAmber.withValues(alpha: 0.14)
-                  : appMutedSurfaceColor,
+                  : appMutedSurface(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected ? _accentAmber : _softGray,
@@ -450,8 +456,8 @@ class _DeliveryOptionTile extends StatelessWidget {
                   Text(
                     deliveryTypeLabel(type),
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: _inkDeep,
+                    style:  TextStyle(
+                      color: appTextPrimary(context),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -479,11 +485,13 @@ class _DeliveryOptionTile extends StatelessWidget {
 class _AddressForm extends StatelessWidget {
   const _AddressForm({
     required this.phoneController,
+    required this.secondaryPhoneController,
     required this.locationController,
     required this.deliveryType,
   });
 
   final TextEditingController phoneController;
+  final TextEditingController secondaryPhoneController;
   final TextEditingController locationController;
   final String deliveryType;
 
@@ -493,18 +501,18 @@ class _AddressForm extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _softGray),
+        border: Border.all(color: appBorder(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
             'بيانات التوصيل',
-            style: const TextStyle(
+            style:  TextStyle(
               fontSize: 16,
-              color: _inkDeep,
+              color: appTextPrimary(context),
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -522,12 +530,29 @@ class _AddressForm extends StatelessWidget {
             hintText: 'ادخل رقم الهاتف',
             controller: phoneController,
             keyboardType: TextInputType.phone,
+            readOnly: true,
             validate: (String? value) {
               if (value == null || value.isEmpty) {
                 return 'رجاءً ادخل رقم الهاتف';
               }
               return null;
             },
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'رقم إضافي اختياري',
+            style: TextStyle(
+              fontSize: 12,
+              color: _textMuted,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          CustomTextField(
+            hintText: 'اكتب رقم ثاني إذا تريد',
+            controller: secondaryPhoneController,
+            keyboardType: TextInputType.phone,
+            validate: (_) => null,
           ),
           const SizedBox(height: 16),
           Text(

@@ -13,10 +13,10 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: appBackgroundColor,
+        backgroundColor: appPageColor(context),
         body: Stack(
           children: [
-            const _AuthBackground(),
+            _AuthBackground(),
             SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
@@ -55,7 +55,7 @@ class _AuthBackground extends StatelessWidget {
             ),
           ),
         ),
-        const Expanded(child: ColoredBox(color: appBackgroundColor)),
+        Expanded(child: ColoredBox(color: appPageColor(context))),
       ],
     );
   }
@@ -168,9 +168,9 @@ class AuthPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: appSurfaceColor,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: appBorderColor),
+        border: Border.all(color: appBorder(context)),
         boxShadow: const [
           BoxShadow(
             color: appSoftShadowColor,
@@ -299,8 +299,8 @@ class AuthSecondaryAction extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: appTextMutedColor,
+          style: TextStyle(
+            color: appTextMuted(context),
             fontWeight: FontWeight.w600,
           ),
         ),

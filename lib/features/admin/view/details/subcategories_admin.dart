@@ -40,7 +40,7 @@ class AdminSubcategoriesPage extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: appBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   CustomAppBarBack(
@@ -50,11 +50,11 @@ class AdminSubcategoriesPage extends StatelessWidget {
                   Expanded(
                     child:
                         subcategories.isEmpty
-                            ? const Center(
+                            ? Center(
                               child: Text(
                                 'لا توجد أقسام فرعية لهذا القسم حالياً',
                                 style: TextStyle(
-                                  color: secondTextColor,
+                                  color: appTextMuted(context),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -94,7 +94,10 @@ class AdminSubcategoriesPage extends StatelessWidget {
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: appSurface(context),
+                                      border: Border.all(
+                                        color: appBorder(context),
+                                      ),
                                       borderRadius: BorderRadius.circular(22),
                                       boxShadow: const [
                                         BoxShadow(
@@ -114,12 +117,16 @@ class AdminSubcategoriesPage extends StatelessWidget {
                                             child:
                                                 cleanImageUrl.isEmpty
                                                     ? Container(
-                                                      color: mutedSurfaceColor,
+                                                      color: appMutedSurface(
+                                                        context,
+                                                      ),
                                                       alignment:
                                                           Alignment.center,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                         Icons.widgets_outlined,
-                                                        color: secondTextColor,
+                                                        color: appTextMuted(
+                                                          context,
+                                                        ),
                                                         size: 30,
                                                       ),
                                                     )
@@ -143,10 +150,10 @@ class AdminSubcategoriesPage extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(height: 6),
-                                        const Text(
+                                        Text(
                                           'اضغط لعرض المنتجات',
                                           style: TextStyle(
-                                            color: secondTextColor,
+                                            color: appTextMuted(context),
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                           ),

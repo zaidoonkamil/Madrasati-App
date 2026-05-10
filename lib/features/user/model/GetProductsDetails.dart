@@ -43,6 +43,8 @@ class ProductDetails {
   String description;
   int price;
   int stock;
+  List<String> colors;
+  List<String> sizes;
   List<String> images;
   DateTime createdAt;
   DateTime updatedAt;
@@ -57,6 +59,8 @@ class ProductDetails {
     required this.description,
     required this.price,
     required this.stock,
+    required this.colors,
+    required this.sizes,
     required this.images,
     required this.createdAt,
     required this.updatedAt,
@@ -72,7 +76,9 @@ class ProductDetails {
     description: json["description"],
     price: json["price"],
     stock: json["stock"] ?? 0,
-    images: List<String>.from(json["images"].map((x) => x)),
+    colors: List<String>.from((json["colors"] ?? []).map((x) => x.toString())),
+    sizes: List<String>.from((json["sizes"] ?? []).map((x) => x.toString())),
+    images: List<String>.from((json["images"] ?? []).map((x) => x)),
     createdAt: DateTime.parse(json["createdAt"]),
     updatedAt: DateTime.parse(json["updatedAt"]),
     userId: json["userId"],
@@ -87,6 +93,8 @@ class ProductDetails {
     "description": description,
     "price": price,
     "stock": stock,
+    "colors": colors,
+    "sizes": sizes,
     "images": List<dynamic>.from(images.map((x) => x)),
     "createdAt": createdAt.toIso8601String(),
     "updatedAt": updatedAt.toIso8601String(),

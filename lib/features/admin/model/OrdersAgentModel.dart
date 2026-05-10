@@ -31,29 +31,36 @@ class OrdersAdminModel {
 class Order {
   int id;
   String phone;
+  String secondaryPhone;
   String address;
   String deliveryType;
   String status;
   DateTime createdAt;
   int totalItems;
   int totalPrice;
+  int discountAmount;
+  String? couponCode;
   List<Item> items;
 
   Order({
     required this.id,
     required this.phone,
+    required this.secondaryPhone,
     required this.address,
     required this.deliveryType,
     required this.status,
     required this.createdAt,
     required this.totalItems,
     required this.totalPrice,
+    required this.discountAmount,
+    this.couponCode,
     required this.items,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
     id: json["id"] ?? 0,
     phone: json["phone"]?.toString() ?? '',
+    secondaryPhone: json["secondaryPhone"]?.toString() ?? '',
     address: json["address"]?.toString() ?? '',
     deliveryType: json["deliveryType"]?.toString() ?? 'standard',
     status: json["status"]?.toString() ?? '',
@@ -62,6 +69,8 @@ class Order {
         DateTime.now(),
     totalItems: json["totalItems"] ?? 0,
     totalPrice: json["totalPrice"] ?? 0,
+    discountAmount: json["discountAmount"] ?? 0,
+    couponCode: json["couponCode"]?.toString(),
     items: List<Item>.from(
       ((json["items"] as List?) ?? []).map((x) => Item.fromJson(x ?? {})),
     ),
@@ -70,12 +79,15 @@ class Order {
   Map<String, dynamic> toJson() => {
     "id": id,
     "phone": phone,
+    "secondaryPhone": secondaryPhone,
     "address": address,
     "deliveryType": deliveryType,
     "status": status,
     "createdAt": createdAt.toIso8601String(),
     "totalItems": totalItems,
     "totalPrice": totalPrice,
+    "discountAmount": discountAmount,
+    "couponCode": couponCode,
     "items": List<dynamic>.from(items.map((x) => x.toJson())),
   };
 }
@@ -84,12 +96,16 @@ class Item {
   int id;
   int quantity;
   int priceAtOrder;
+  String? selectedColor;
+  String? selectedSize;
   ProductAgent productAgent;
 
   Item({
     required this.id,
     required this.quantity,
     required this.priceAtOrder,
+    this.selectedColor,
+    this.selectedSize,
     required this.productAgent,
   });
 
@@ -97,6 +113,8 @@ class Item {
     id: json["id"] ?? 0,
     quantity: json["quantity"] ?? 0,
     priceAtOrder: json["priceAtOrder"] ?? 0,
+    selectedColor: json["selectedColor"]?.toString(),
+    selectedSize: json["selectedSize"]?.toString(),
     productAgent: ProductAgent.fromJson(
       (json["product"] as Map<String, dynamic>?) ?? {},
     ),
@@ -106,6 +124,8 @@ class Item {
     "id": id,
     "quantity": quantity,
     "priceAtOrder": priceAtOrder,
+    "selectedColor": selectedColor,
+    "selectedSize": selectedSize,
     "product": productAgent.toJson(),
   };
 }

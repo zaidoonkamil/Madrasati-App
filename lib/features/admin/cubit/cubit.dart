@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:madrasati_app/features/admin/cubit/states.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,87 @@ class AdminCubit extends Cubit<AdminStates> {
 
   void slid() {
     emit(ValidationState());
+  }
+
+  List<Map<String, dynamic>> faqs = [];
+  List<Map<String, dynamic>> customRequests = [];
+
+  List<Map<String, dynamic>> _parseMapList(dynamic data) {
+    final source = data is String ? jsonDecode(data) : data;
+    if (source is List) {
+      return source
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    return [];
+  }
+
+  void getFaqs({required BuildContext context}) {
+    DioHelper.getData(url: '/faqs?all=true')
+        .then((value) {
+          faqs = _parseMapList(value.data);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر جلب الأسئلة', context: context);
+        });
+  }
+
+  void addFaq({
+    required BuildContext context,
+    required String question,
+    required String answer,
+  }) {
+    DioHelper.postData(
+          url: '/faqs',
+          data: {'question': question.trim(), 'answer': answer.trim()},
+        )
+        .then((_) {
+          showToastSuccess(text: 'تمت إضافة السؤال', context: context);
+          getFaqs(context: context);
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر إضافة السؤال', context: context);
+        });
+  }
+
+  void deleteFaq({required BuildContext context, required int faqId}) {
+    DioHelper.deleteData(url: '/faqs/$faqId')
+        .then((_) {
+          faqs.removeWhere((item) => item['id'] == faqId);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر حذف السؤال', context: context);
+        });
+  }
+
+  void getCustomRequests({required BuildContext context}) {
+    DioHelper.getData(url: '/custom-requests')
+        .then((value) {
+          customRequests = _parseMapList(value.data);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر جلب الطلبات المخصصة', context: context);
+        });
+  }
+
+  String _dioErrorMessage(
+    DioError error, {
+    String fallback = 'حدث خطأ غير معروف',
+  }) {
+    final data = error.response?.data;
+    if (data is Map) {
+      return data['error']?.toString() ??
+          data['message']?.toString() ??
+          fallback;
+    }
+    if (data is String && data.trim().isNotEmpty) {
+      return data;
+    }
+    return error.message ?? fallback;
   }
 
   bool isLiked = false;
@@ -139,6 +222,8 @@ class AdminCubit extends Cubit<AdminStates> {
     required String description,
     required String price,
     required String stock,
+    String colors = '',
+    String sizes = '',
     required BuildContext context,
   }) {
     emit(UpdateProductsLoadingState());
@@ -149,6 +234,8 @@ class AdminCubit extends Cubit<AdminStates> {
             'description': description,
             'price': price,
             'stock': stock,
+            'colors': colors,
+            'sizes': sizes,
           },
         )
         .then((value) {
@@ -200,6 +287,8 @@ class AdminCubit extends Cubit<AdminStates> {
     required String price,
     required String stock,
     required String categoryId,
+    String colors = '',
+    String sizes = '',
     required BuildContext context,
   }) async {
     emit(AddProductsLoadingState());
@@ -213,6 +302,8 @@ class AdminCubit extends Cubit<AdminStates> {
       'description': desc,
       'price': price,
       'stock': stock,
+      'colors': colors,
+      'sizes': sizes,
       'userId': id,
       'categoryId': categoryId,
     }, ListFormat.multiCompatible);
@@ -241,13 +332,147 @@ class AdminCubit extends Cubit<AdminStates> {
         .catchError((error) {
           if (error is DioError) {
             showToastError(
-              text: error.response?.data["error"],
+              text: _dioErrorMessage(error, fallback: 'تعذر إضافة المنتج'),
               context: context,
             );
             emit(AddProductsErrorState());
           } else {
             print("Unknown Error: $error");
           }
+        });
+  }
+
+  bool showSocialLinks = true;
+
+  void getSocialSettings({required BuildContext context}) {
+    DioHelper.getData(url: '/app-settings/social')
+        .then((value) {
+          showSocialLinks = value.data['showSocialLinks'] != false;
+          emit(SocialSettingsSuccessState());
+        })
+        .catchError((error) {
+          emit(SocialSettingsErrorState());
+        });
+  }
+
+  void updateSocialSettings({
+    required BuildContext context,
+    required bool show,
+  }) {
+    emit(SocialSettingsLoadingState());
+    DioHelper.patchData(
+          url: '/app-settings/social',
+          data: {'showSocialLinks': show.toString()},
+        )
+        .then((value) {
+          showSocialLinks = value.data['showSocialLinks'] != false;
+          showToastSuccess(text: 'تم تحديث إعدادات التواصل', context: context);
+          emit(SocialSettingsSuccessState());
+        })
+        .catchError((error) {
+          showToastError(text: error.toString(), context: context);
+          emit(SocialSettingsErrorState());
+        });
+  }
+
+  List<Map<String, dynamic>> coupons = [];
+
+  List<Map<String, dynamic>> _parseCouponList(dynamic data) {
+    final dynamic source = data is String ? jsonDecode(data) : data;
+    if (source is List) {
+      return source
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    return [];
+  }
+
+  void getCoupons({required BuildContext context}) {
+    emit(CouponsLoadingState());
+    DioHelper.getData(url: '/coupons')
+        .then((value) {
+          coupons = _parseCouponList(value.data);
+          emit(CouponsSuccessState());
+        })
+        .catchError((error) {
+          if (error is DioError) {
+            showToastError(
+              text:
+                  error.response?.data['error']?.toString() ??
+                  'تعذر جلب الكوبونات',
+              context: context,
+            );
+          } else {
+            showToastError(
+              text: 'تعذر قراءة بيانات الكوبونات',
+              context: context,
+            );
+          }
+          emit(CouponsErrorState());
+        });
+  }
+
+  void addCoupon({
+    required BuildContext context,
+    required String code,
+    required String type,
+    required String value,
+  }) {
+    emit(CouponsLoadingState());
+    DioHelper.postData(
+          url: '/coupons',
+          data: {'code': code, 'type': type, 'value': value},
+        )
+        .then((_) {
+          showToastSuccess(text: 'تمت إضافة الكوبون', context: context);
+          getCoupons(context: context);
+        })
+        .catchError((error) {
+          if (error is DioError) {
+            showToastError(
+              text:
+                  error.response?.data['error']?.toString() ?? error.toString(),
+              context: context,
+            );
+          }
+          emit(CouponsErrorState());
+        });
+  }
+
+  void toggleCoupon({
+    required BuildContext context,
+    required int couponId,
+    required bool isActive,
+  }) {
+    DioHelper.patchData(
+      url: '/coupons/$couponId',
+      data: {'isActive': (!isActive).toString()},
+    ).then((_) => getCoupons(context: context)).catchError((error) {
+      showToastError(text: error.toString(), context: context);
+      emit(CouponsErrorState());
+    });
+  }
+
+  void deleteCoupon({required BuildContext context, required int couponId}) {
+    emit(CouponsLoadingState());
+    DioHelper.deleteData(url: '/coupons/$couponId')
+        .then((_) {
+          coupons.removeWhere((coupon) => coupon['id'] == couponId);
+          showToastSuccess(text: 'تم حذف الكوبون', context: context);
+          emit(CouponsSuccessState());
+        })
+        .catchError((error) {
+          if (error is DioError) {
+            showToastError(
+              text:
+                  error.response?.data['error']?.toString() ?? error.toString(),
+              context: context,
+            );
+          } else {
+            showToastError(text: error.toString(), context: context);
+          }
+          emit(CouponsErrorState());
         });
   }
 

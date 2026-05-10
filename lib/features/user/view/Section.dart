@@ -97,6 +97,8 @@ class Section extends StatelessWidget {
                                               .localizedDescription(localeCode),
                                           price: product.price.toString(),
                                           stock: product.stock,
+                                          colors: product.colors,
+                                          sizes: product.sizes,
                                           images: product.images,
                                           isFavorite: product.isFavorite,
                                           imageSeller: product.seller.image,
@@ -112,10 +114,10 @@ class Section extends StatelessWidget {
                                       ),
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: containerColor,
+                                        color: appSurface(context),
                                         borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
-                                          color: borderColor,
+                                          color: appBorder(context),
                                           width: 1,
                                         ),
                                       ),
@@ -133,6 +135,44 @@ class Section extends StatelessWidget {
                                               }
 
                                               if (token != '') {
+                                                if (product.colors.isNotEmpty ||
+                                                    product.sizes.isNotEmpty) {
+                                                  navigateToPremium(
+                                                    context,
+                                                    Details(
+                                                      sellerId:
+                                                          product.seller.id
+                                                              .toString(),
+                                                      id: product.id.toString(),
+                                                      tittle: product
+                                                          .localizedTitle(
+                                                            localeCode,
+                                                          ),
+                                                      description: product
+                                                          .localizedDescription(
+                                                            localeCode,
+                                                          ),
+                                                      price:
+                                                          product.price
+                                                              .toString(),
+                                                      stock: product.stock,
+                                                      colors: product.colors,
+                                                      sizes: product.sizes,
+                                                      images: product.images,
+                                                      isFavorite:
+                                                          product.isFavorite,
+                                                      imageSeller:
+                                                          product.seller.image,
+                                                      locationSeller:
+                                                          product
+                                                              .seller
+                                                              .location,
+                                                      nameSeller:
+                                                          product.seller.name,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
                                                 cubit.addToBasket(
                                                   productId:
                                                       product.id.toString(),
@@ -242,13 +282,17 @@ class Section extends StatelessWidget {
                                                     ? Container(
                                                       width: 95,
                                                       height: 95,
-                                                      color: mutedSurfaceColor,
+                                                      color: appMutedSurface(
+                                                        context,
+                                                      ),
                                                       alignment:
                                                           Alignment.center,
-                                                      child: const Icon(
+                                                      child: Icon(
                                                         Icons
                                                             .image_not_supported_outlined,
-                                                        color: secondTextColor,
+                                                        color: appTextMuted(
+                                                          context,
+                                                        ),
                                                       ),
                                                     )
                                                     : Image.network(
@@ -289,6 +333,8 @@ class Section extends StatelessWidget {
                                   ),
                                   price: product.price,
                                   stock: product.stock,
+                                  colors: product.colors,
+                                  sizes: product.sizes,
                                   images: product.images,
                                   isFavorite: product.isFavorite,
                                   imageSeller: product.seller.image,

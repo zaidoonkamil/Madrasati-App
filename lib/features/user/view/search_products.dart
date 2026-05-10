@@ -202,7 +202,7 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: pageBackgroundColor,
+        backgroundColor: appPageColor(context),
         body: Column(
           children: [
             _buildHeader(context),
@@ -413,7 +413,6 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
       ),
       child: Column(
         children: [
-
           DropdownButtonFormField<CatModel?>(
             value: _selectedCategory,
             isExpanded: true,
@@ -642,6 +641,8 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
             description: description,
             price: product.price.toString(),
             stock: product.stock,
+            colors: product.colors,
+            sizes: product.sizes,
             images: product.images,
             isFavorite: product.isFavorite,
             imageSeller: product.seller.image,
@@ -653,9 +654,9 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cardSurfaceColor,
+          color: appSurface(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: appBorder(context)),
         ),
         child: Row(
           children: [
@@ -680,8 +681,8 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: secondTextColor,
+                    style: TextStyle(
+                      color: appTextMuted(context),
                       fontSize: 10,
                       height: 1.5,
                     ),
@@ -736,11 +737,11 @@ class _SearchProductsPageState extends State<SearchProductsPage> {
                         ? Container(
                           width: 92,
                           height: 102,
-                          color: mutedSurfaceColor,
+                          color: appMutedSurface(context),
                           alignment: Alignment.center,
-                          child: const Icon(
+                          child: Icon(
                             Icons.image_not_supported_outlined,
-                            color: secondTextColor,
+                            color: appTextMuted(context),
                             size: 26,
                           ),
                         )

@@ -46,7 +46,9 @@ class OrderInvoiceService {
               _infoGrid([
                 _InfoItem('رقم الطلب', '#${order.id}'),
                 _InfoItem('تاريخ الطلب', dateFormat.format(order.createdAt)),
-                _InfoItem('رقم الزبون', order.phone),
+                _InfoItem('رقم الحساب', order.phone),
+                if (order.secondaryPhone.isNotEmpty)
+                  _InfoItem('رقم إضافي', order.secondaryPhone),
                 _InfoItem('نوع التوصيل', deliveryTypeLabel(order.deliveryType)),
                 _InfoItem('العنوان', order.address),
                 _InfoItem('حالة الطلب', order.status),
@@ -193,7 +195,7 @@ class OrderInvoiceService {
               _cell('${moneyFormat.format(lineTotal)} د.ع'),
               _cell('${moneyFormat.format(item.priceAtOrder)} د.ع'),
               _cell(item.quantity.toString()),
-              _cell(item.productAgent.title),
+              _cell('${item.productAgent.title}\nID: ${item.productAgent.id}'),
               _cell(index.toString()),
             ],
           );

@@ -32,7 +32,7 @@ class Favorites extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
-              backgroundColor: pageBackgroundColor,
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   CustomAppBarBack(
@@ -110,6 +110,8 @@ class _FavoriteCard extends StatelessWidget {
             description: description,
             price: product.price.toString(),
             stock: product.stock,
+            colors: product.colors,
+            sizes: product.sizes,
             images: product.images,
             isFavorite: true,
             imageSeller: product.seller.image,
@@ -121,9 +123,9 @@ class _FavoriteCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cardSurfaceColor,
+          color: appSurface(context),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: appBorder(context)),
         ),
         child: Row(
           children: [
@@ -148,8 +150,8 @@ class _FavoriteCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: secondTextColor,
+                    style: TextStyle(
+                      color: appTextMuted(context),
                       fontSize: 11,
                       height: 1.5,
                     ),
@@ -190,8 +192,8 @@ class _FavoriteCard extends StatelessWidget {
                             Text(
                               'دينار عراقي',
                               textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                color: secondTextColor,
+                              style: TextStyle(
+                                color: appTextMuted(context),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -213,11 +215,11 @@ class _FavoriteCard extends StatelessWidget {
                       ? Container(
                         width: 88,
                         height: 98,
-                        color: mutedSurfaceColor,
+                        color: appMutedSurface(context),
                         alignment: Alignment.center,
-                        child: const Icon(
+                        child: Icon(
                           Icons.image_not_supported_outlined,
-                          color: secondTextColor,
+                          color: appTextMuted(context),
                         ),
                       )
                       : Hero(
@@ -252,7 +254,7 @@ class _EmptyFavorites extends StatelessWidget {
               width: 74,
               height: 74,
               decoration: BoxDecoration(
-                color: mutedSurfaceColor,
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: const Icon(
@@ -275,8 +277,8 @@ class _EmptyFavorites extends StatelessWidget {
             Text(
               'عند إضافة أي منتج إلى المفضلة سيظهر هنا بشكل منظم',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: secondTextColor,
+              style: TextStyle(
+                color: appTextMuted(context),
                 fontSize: 13,
                 height: 1.6,
               ),

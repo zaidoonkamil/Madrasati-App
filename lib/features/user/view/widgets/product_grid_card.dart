@@ -21,6 +21,8 @@ class UserProductGridCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    required this.colors,
+    required this.sizes,
     required this.images,
     required this.isFavorite,
     required this.imageSeller,
@@ -37,6 +39,8 @@ class UserProductGridCard extends StatelessWidget {
   final String description;
   final int price;
   final int stock;
+  final List<String> colors;
+  final List<String> sizes;
   final List<String> images;
   final bool isFavorite;
   final String imageSeller;
@@ -63,6 +67,8 @@ class UserProductGridCard extends StatelessWidget {
             description: description,
             price: price.toString(),
             stock: stock,
+            colors: colors,
+            sizes: sizes,
             images: images,
             isFavorite: isFavorite,
             imageSeller: imageSeller,
@@ -73,9 +79,9 @@ class UserProductGridCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: cardSurfaceColor,
+          color: appSurface(context),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: appBorder(context)),
           boxShadow: [
             BoxShadow(
               color: secondPrimaryColor.withValues(alpha: 0.05),
@@ -101,9 +107,9 @@ class UserProductGridCard extends StatelessWidget {
                                 ? Container(
                                   color: Colors.grey.shade200,
                                   alignment: Alignment.center,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.image_not_supported_outlined,
-                                    color: secondTextColor,
+                                    color: appTextMuted(context),
                                   ),
                                 )
                                 : Image.network(
@@ -210,7 +216,7 @@ class UserProductGridCard extends StatelessWidget {
                     textAlign: TextAlign.end,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: secondPrimaryColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -226,6 +232,27 @@ class UserProductGridCard extends StatelessWidget {
                             return;
                           }
                           if (token != '') {
+                            if (colors.isNotEmpty || sizes.isNotEmpty) {
+                              navigateToPremium(
+                                context,
+                                Details(
+                                  sellerId: sellerId,
+                                  id: productId,
+                                  tittle: title,
+                                  description: description,
+                                  price: price.toString(),
+                                  stock: stock,
+                                  colors: colors,
+                                  sizes: sizes,
+                                  images: images,
+                                  isFavorite: isFavorite,
+                                  imageSeller: imageSeller,
+                                  locationSeller: locationSeller,
+                                  nameSeller: nameSeller,
+                                ),
+                              );
+                              return;
+                            }
                             cubit.addToBasket(
                               productId: productId,
                               quantity: '1',
@@ -269,8 +296,8 @@ class UserProductGridCard extends StatelessWidget {
                             Text(
                               'دينار عراقي',
                               textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                color: secondTextColor,
+                              style: TextStyle(
+                                color: appTextMuted(context),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/ navigation/navigation.dart';
 import '../../core/navigation_bar/navigation_bar.dart';
@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: appBackgroundColor,
+        backgroundColor: appPageColor(context),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

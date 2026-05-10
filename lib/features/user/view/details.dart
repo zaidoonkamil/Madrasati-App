@@ -4,6 +4,7 @@ import 'package:like_button/like_button.dart';
 import 'package:madrasati_app/core/network/remote/dio_helper.dart';
 import 'package:madrasati_app/core/widgets/app_bar.dart';
 import 'package:madrasati_app/core/widgets/constant.dart';
+import 'package:madrasati_app/core/widgets/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -17,7 +18,6 @@ import '../cubit/states.dart';
 // ═══════════════════════════════════════════════════════
 //  PALETTE (matches full app)
 // ═══════════════════════════════════════════════════════
-const _cream = appBackgroundColor;
 const _inkDeep = appTextPrimaryColor;
 const _accentAmber = appAccentColor;
 
@@ -30,6 +30,8 @@ class Details extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    required this.colors,
+    required this.sizes,
     required this.images,
     required this.imageSeller,
     required this.locationSeller,
@@ -46,6 +48,8 @@ class Details extends StatelessWidget {
   final String description;
   final String price;
   final int stock;
+  final List<String> colors;
+  final List<String> sizes;
   final String imageSeller;
   final String nameSeller;
   final String locationSeller;
@@ -71,12 +75,12 @@ class Details extends StatelessWidget {
               (images ?? []).where((e) => e.isNotEmpty).toList();
 
           return Scaffold(
-            backgroundColor: _cream,
+            backgroundColor: appPageColor(context),
             body: SafeArea(
               top: false,
               child: Column(
                 children: [
-                  CustomAppBarBack(
+                  CustomAppBarBackPr(
                     title: 'تفاصيل المنتج',
                     subtitle: 'مواصفات القطعة وخيارات الطلب',
                   ),
@@ -90,6 +94,10 @@ class Details extends StatelessWidget {
                           _buildGallery(context, cubit, safeImages),
                           const SizedBox(height: 12),
                           _buildHeadline(context, number, stock),
+                          if (colors.isNotEmpty || sizes.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            _buildOptionsCard(context, cubit),
+                          ],
                           if (token != '') ...[
                             const SizedBox(height: 8),
                             _buildActionsCard(context, cubit, canOrder, stock),
@@ -114,6 +122,8 @@ class Details extends StatelessWidget {
                           cubit: cubit,
                           id: id,
                           stock: stock,
+                          colors: colors,
+                          sizes: sizes,
                         ),
                       ),
                     )
@@ -134,9 +144,9 @@ class Details extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cardSurfaceColor,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
       ),
       child: Column(
         children: [
@@ -152,10 +162,10 @@ class Details extends StatelessWidget {
                             height: 300,
                             color: Colors.grey.shade200,
                             alignment: Alignment.center,
-                            child: const Icon(
+                            child: Icon(
                               Icons.image_not_supported_outlined,
                               size: 44,
-                              color: secondTextColor,
+                              color: appTextMuted(context),
                             ),
                           )
                           : CarouselSlider(
@@ -239,9 +249,9 @@ class Details extends StatelessWidget {
                         color:
                             currentIndex == entry.key
                                 ? primaryColor
-                                : Colors.white,
+                                : appSurface(context),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: borderColor),
+                        border: Border.all(color: appBorder(context)),
                       ),
                     );
                   }).toList(),
@@ -256,9 +266,9 @@ class Details extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
         boxShadow: [
           BoxShadow(
             color: secondPrimaryColor.withValues(alpha: 0.04),
@@ -273,7 +283,7 @@ class Details extends StatelessWidget {
           Text(
             tittle,
             textAlign: TextAlign.end,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               color: secondPrimaryColor,
               fontWeight: FontWeight.w800,
@@ -283,9 +293,9 @@ class Details extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: secondTextColor,
+              color: appTextMuted(context),
               height: 1.8,
             ),
             textAlign: TextAlign.end,
@@ -299,7 +309,7 @@ class Details extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: mutedSurfaceColor,
+                  color: appMutedSurface(context),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -334,12 +344,12 @@ class Details extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'دينار عراقي',
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontSize: 12,
-                      color: secondTextColor,
+                      color: appTextMuted(context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -361,9 +371,9 @@ class Details extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: appSurface(context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: appBorder(context)),
       ),
       child: Row(
         children: [
@@ -392,7 +402,7 @@ class Details extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: mutedSurfaceColor,
+                color: appMutedSurface(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -410,9 +420,9 @@ class Details extends StatelessWidget {
                         color: primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: appSurface(context),
                         size: 18,
                       ),
                     ),
@@ -434,9 +444,9 @@ class Details extends StatelessWidget {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: appSurface(context),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: borderColor),
+                        border: Border.all(color: appBorder(context)),
                       ),
                       child: const Icon(
                         Icons.remove,
@@ -448,6 +458,55 @@ class Details extends StatelessWidget {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionsCard(BuildContext context, UserCubit cubit) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: appSurface(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: appBorder(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (colors.isNotEmpty) ...[
+            const Text(
+              'اختر اللون',
+              style: TextStyle(
+                color: secondPrimaryColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _OptionWrap(
+              values: colors,
+              selectedValue: cubit.selectedProductColor,
+              onSelected: cubit.selectProductColor,
+            ),
+          ],
+          if (colors.isNotEmpty && sizes.isNotEmpty) const SizedBox(height: 16),
+          if (sizes.isNotEmpty) ...[
+            const Text(
+              'اختر القياس',
+              style: TextStyle(
+                color: secondPrimaryColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _OptionWrap(
+              values: sizes,
+              selectedValue: cubit.selectedProductSize,
+              onSelected: cubit.selectProductSize,
+            ),
+          ],
         ],
       ),
     );
@@ -493,15 +552,76 @@ $_appShareLink
 // ═══════════════════════════════════════════════════════
 //  ✦ ADD TO CART BOTTOM BAR
 // ═══════════════════════════════════════════════════════
+class _OptionWrap extends StatelessWidget {
+  const _OptionWrap({
+    required this.values,
+    required this.selectedValue,
+    required this.onSelected,
+  });
+
+  final List<String> values;
+  final String? selectedValue;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.end,
+      spacing: 8,
+      runSpacing: 8,
+      children:
+          values.map((value) {
+            final selected = selectedValue == value;
+            return GestureDetector(
+              onTap: () => onSelected(value),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 9,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      selected
+                          ? appAccentColor.withValues(alpha: 0.18)
+                          : appMutedSurface(context),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: selected ? appAccentColor : appBorder(context),
+                    width: selected ? 1.4 : 1,
+                  ),
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color:
+                        selected
+                            ? appTextPrimary(context)
+                            : appTextMuted(context),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+    );
+  }
+}
+
 class _AddToCartBar extends StatelessWidget {
   const _AddToCartBar({
     required this.cubit,
     required this.id,
     required this.stock,
+    required this.colors,
+    required this.sizes,
   });
   final UserCubit cubit;
   final String id;
   final int stock;
+  final List<String> colors;
+  final List<String> sizes;
 
   @override
   Widget build(BuildContext context) {
@@ -510,9 +630,19 @@ class _AddToCartBar extends StatelessWidget {
         if (cubit.quantity > stock) {
           return;
         }
+        if (colors.isNotEmpty && cubit.selectedProductColor == null) {
+          showToastInfo(text: 'اختار اللون أولاً', context: context);
+          return;
+        }
+        if (sizes.isNotEmpty && cubit.selectedProductSize == null) {
+          showToastInfo(text: 'اختار القياس أولاً', context: context);
+          return;
+        }
         cubit.addToBasket(
           productId: id,
           quantity: cubit.quantity.toString(),
+          selectedColor: cubit.selectedProductColor,
+          selectedSize: cubit.selectedProductSize,
           context: context,
         );
       },
@@ -558,7 +688,6 @@ class _AddToCartBar extends StatelessWidget {
                   color: _inkDeep,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ),
@@ -576,7 +705,6 @@ class _AddToCartBar extends StatelessWidget {
                   color: _inkDeep,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  fontFamily: 'Cairo',
                 ),
               ),
             ),

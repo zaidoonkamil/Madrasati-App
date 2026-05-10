@@ -40,6 +40,7 @@ class AddAdmin extends StatelessWidget {
           return SafeArea(
             top: false,
             child: Scaffold(
+              backgroundColor: appPageColor(context),
               body: Column(
                 children: [
                   const CustomAppBarBack(
