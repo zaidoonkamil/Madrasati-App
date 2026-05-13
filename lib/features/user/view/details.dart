@@ -14,6 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/styles/themes.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
+import '../model/ProductsModel.dart';
 
 // ═══════════════════════════════════════════════════════
 //  PALETTE (matches full app)
@@ -59,7 +60,11 @@ class Details extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserCubit()..isLiked = isFavorite,
+      create:
+          (context) =>
+              UserCubit()
+                ..isLiked = isFavorite
+                ..getMarketingProducts(context: context, productId: id),
       child: BlocConsumer<UserCubit, UserStates>(
         listener: (context, state) {
           if (state is AddToBasketSuccessState) {
@@ -101,6 +106,10 @@ class Details extends StatelessWidget {
                           if (token != '') ...[
                             const SizedBox(height: 8),
                             _buildActionsCard(context, cubit, canOrder, stock),
+                          ],
+                          if (cubit.marketingProducts.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            _buildMarketingProducts(context, cubit),
                           ],
                           const SizedBox(height: 8),
                         ],
@@ -512,6 +521,47 @@ class Details extends StatelessWidget {
     );
   }
 
+  Widget _buildMarketingProducts(BuildContext context, UserCubit cubit) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: appSurface(context),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: appBorder(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            'منتجات قد تعجبك',
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              color: appTextPrimary(context),
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 210,
+            child: ListView.separated(
+              reverse: true,
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: cubit.marketingProducts.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                return _MarketingProductCard(
+                  product: cubit.marketingProducts[index],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSuccessSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -552,6 +602,109 @@ $_appShareLink
 // ═══════════════════════════════════════════════════════
 //  ✦ ADD TO CART BOTTOM BAR
 // ═══════════════════════════════════════════════════════
+class _MarketingProductCard extends StatelessWidget {
+  const _MarketingProductCard({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = product.images.isNotEmpty ? product.images.first : '';
+    final cleanImage = image.replaceAll(RegExp(r'[\[\]]'), '');
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (_) => Details(
+                  sellerId: product.userId.toString(),
+                  id: product.id.toString(),
+                  tittle: product.localizedTitle('ar'),
+                  description: product.localizedDescription('ar'),
+                  price: product.price.toString(),
+                  stock: product.stock,
+                  colors: product.colors,
+                  sizes: product.sizes,
+                  images: product.images,
+                  imageSeller: product.seller.image,
+                  locationSeller: product.seller.location,
+                  nameSeller: product.seller.name,
+                  isFavorite: product.isFavorite,
+                ),
+          ),
+        );
+      },
+      child: Container(
+        width: 142,
+        decoration: BoxDecoration(
+          color: appMutedSurface(context),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: appBorder(context)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(18),
+              ),
+              child:
+                  cleanImage.isEmpty
+                      ? Container(
+                        height: 110,
+                        color: appBorder(context),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: appTextMuted(context),
+                        ),
+                      )
+                      : Image.network(
+                        '$url/uploads/$cleanImage',
+                        height: 110,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    product.localizedTitle('ar'),
+                    textAlign: TextAlign.end,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: appTextPrimary(context),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${NumberFormat('#,###').format(product.price)} د.ع',
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _OptionWrap extends StatelessWidget {
   const _OptionWrap({
     required this.values,
@@ -671,7 +824,7 @@ class _AddToCartBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(
-                Iconsax.shopping_bag,
+                Iconsax.shopping_cart,
                 color: _inkDeep,
                 size: 22,
               ),

@@ -80,6 +80,120 @@ class AdminCubit extends Cubit<AdminStates> {
         });
   }
 
+  void updateFaq({
+    required BuildContext context,
+    required int faqId,
+    required String question,
+    required String answer,
+    required bool isActive,
+  }) {
+    DioHelper.patchData(
+          url: '/faqs/$faqId',
+          data: {
+            'question': question.trim(),
+            'answer': answer.trim(),
+            'isActive': isActive.toString(),
+          },
+        )
+        .then((value) {
+          final index = faqs.indexWhere((item) => item['id'] == faqId);
+          if (index != -1 && value.data is Map) {
+            faqs[index] = Map<String, dynamic>.from(value.data);
+          }
+          showToastSuccess(text: 'تم تعديل السؤال', context: context);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر تعديل السؤال', context: context);
+        });
+  }
+
+  List<int> marketingProductIds = [];
+  List<Product> marketingProductSearchResults = [];
+
+  Future<List<int>> getMarketingProductIds({
+    required BuildContext context,
+    required int productId,
+  }) async {
+    try {
+      final value = await DioHelper.getData(
+        url: '/products/$productId/marketing',
+      );
+      final model = ProductsModel.fromJson(value.data);
+      marketingProductIds = model.products.map((item) => item.id).toList();
+      emit(ValidationState());
+      return marketingProductIds;
+    } catch (error) {
+      showToastError(text: 'تعذر جلب قائمة المنتجات', context: context);
+      return <int>[];
+    }
+  }
+
+  void toggleMarketingProduct(int productId) {
+    if (marketingProductIds.contains(productId)) {
+      marketingProductIds.remove(productId);
+    } else {
+      marketingProductIds.add(productId);
+    }
+    emit(ValidationState());
+  }
+
+  Future<List<Product>> searchMarketingProducts({
+    required BuildContext context,
+    required String query,
+    required int currentProductId,
+  }) async {
+    final cleanQuery = query.trim();
+    if (cleanQuery.isEmpty) {
+      marketingProductSearchResults = [];
+      emit(ValidationState());
+      return marketingProductSearchResults;
+    }
+
+    try {
+      final Response value;
+      if (int.tryParse(cleanQuery) != null) {
+        value = await DioHelper.getData(url: '/productItem/$cleanQuery');
+        final product = Product.fromJson(value.data);
+        marketingProductSearchResults =
+            product.id == currentProductId ? [] : [product];
+      } else {
+        value = await DioHelper.getData(
+          url:
+              '/products/search?q=${Uri.encodeComponent(cleanQuery)}&limit=20&sortBy=newest',
+        );
+        marketingProductSearchResults =
+            ProductsModel.fromJson(
+              value.data,
+            ).products.where((item) => item.id != currentProductId).toList();
+      }
+      emit(ValidationState());
+      return marketingProductSearchResults;
+    } catch (error) {
+      marketingProductSearchResults = [];
+      showToastError(text: 'لم يتم العثور على المنتج', context: context);
+      emit(ValidationState());
+      return marketingProductSearchResults;
+    }
+  }
+
+  void updateMarketingProducts({
+    required BuildContext context,
+    required int productId,
+  }) {
+    DioHelper.patchData(
+          url: '/products/$productId/marketing',
+          data: {'productIds': marketingProductIds.join(',')},
+        )
+        .then((_) {
+          showToastSuccess(text: 'تم تحديث قائمة المنتجات', context: context);
+          emit(ValidationState());
+        })
+        .catchError((error) {
+          showToastError(text: 'تعذر تحديث قائمة المنتجات', context: context);
+        });
+  }
+
   void getCustomRequests({required BuildContext context}) {
     DioHelper.getData(url: '/custom-requests')
         .then((value) {
@@ -167,6 +281,12 @@ class AdminCubit extends Cubit<AdminStates> {
   int currentPageProducts = 1;
   bool isLastPageProducts = false;
   ProductsModel? productsModel;
+  ProductsModel? lowStockProductsModel;
+  int currentPageLowStockProducts = 1;
+  bool isLastPageLowStockProducts = false;
+  bool isLoadingMoreLowStockProducts = false;
+  String lowStockFilter = '';
+
   void getProducts({required BuildContext context, required String page}) {
     emit(GetProductsLoadingState());
     DioHelper.getData(url: '/products/$id?page=$page')
@@ -189,6 +309,54 @@ class AdminCubit extends Cubit<AdminStates> {
             print("Unknown Error: $error");
           }
         });
+  }
+
+  Future<void> getLowStockProducts({
+    required BuildContext context,
+    String page = '1',
+    String maxStock = '',
+    bool reset = false,
+  }) async {
+    if (reset) {
+      lowStockProductsModel = null;
+      currentPageLowStockProducts = 1;
+      isLastPageLowStockProducts = false;
+      lowStockFilter = maxStock.trim();
+    }
+    if (isLoadingMoreLowStockProducts || isLastPageLowStockProducts) return;
+
+    isLoadingMoreLowStockProducts = true;
+    emit(GetProductsLoadingState());
+
+    final filterQuery =
+        lowStockFilter.isEmpty ? '' : '&maxStock=$lowStockFilter';
+    try {
+      final value = await DioHelper.getData(
+        url: '/products/low-stock?page=$page&limit=20$filterQuery',
+      );
+      final incoming = ProductsModel.fromJson(value.data);
+      if (lowStockProductsModel == null || reset) {
+        lowStockProductsModel = incoming;
+      } else {
+        final existingIds =
+            lowStockProductsModel!.products.map((item) => item.id).toSet();
+        lowStockProductsModel!.products.addAll(
+          incoming.products.where((item) => !existingIds.contains(item.id)),
+        );
+        lowStockProductsModel!.paginationProducts = incoming.paginationProducts;
+      }
+      currentPageLowStockProducts = incoming.paginationProducts.currentPage;
+      isLastPageLowStockProducts =
+          currentPageLowStockProducts >= incoming.paginationProducts.totalPages;
+      emit(GetProductsSuccessState());
+    } catch (error) {
+      if (error is DioError) {
+        showToastError(text: error.toString(), context: context);
+      }
+      emit(GetProductsErrorState());
+    } finally {
+      isLoadingMoreLowStockProducts = false;
+    }
   }
 
   void deleteProducts({
@@ -222,6 +390,7 @@ class AdminCubit extends Cubit<AdminStates> {
     required String description,
     required String price,
     required String stock,
+    required String lowStockAlert,
     String colors = '',
     String sizes = '',
     required BuildContext context,
@@ -234,6 +403,7 @@ class AdminCubit extends Cubit<AdminStates> {
             'description': description,
             'price': price,
             'stock': stock,
+            'lowStockAlert': lowStockAlert,
             'colors': colors,
             'sizes': sizes,
           },
@@ -286,6 +456,7 @@ class AdminCubit extends Cubit<AdminStates> {
     required String desc,
     required String price,
     required String stock,
+    required String lowStockAlert,
     required String categoryId,
     String colors = '',
     String sizes = '',
@@ -302,6 +473,7 @@ class AdminCubit extends Cubit<AdminStates> {
       'description': desc,
       'price': price,
       'stock': stock,
+      'lowStockAlert': lowStockAlert,
       'colors': colors,
       'sizes': sizes,
       'userId': id,

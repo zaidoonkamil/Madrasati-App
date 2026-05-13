@@ -176,7 +176,7 @@ class Profile extends StatelessWidget {
                                 title: 'الطلبات المخصصة',
                                 subtitle: 'اكتب وصف الشيء الذي تحتاجه',
                                 icon: Iconsax.note_text,
-                                accentColor: _inkDeep,
+                                accentColor: Colors.blue,
                                 onTap: () {
                                   if (!isLoggedIn) {
                                     showToastInfo(

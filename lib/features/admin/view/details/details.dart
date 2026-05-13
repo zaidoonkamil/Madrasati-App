@@ -14,6 +14,7 @@ import 'add_admin.dart';
 import 'add_user.dart';
 import 'all_person.dart';
 import 'all_user_chat_admin.dart';
+import 'low_stock_products.dart';
 import 'stats.dart';
 import 'whatsapp_admin.dart';
 
@@ -108,6 +109,16 @@ class Details extends StatelessWidget {
                                   title: "إضافة إعلان",
                                   icon: Iconsax.activity,
                                   onTap: () => navigateTo(context, AddAds()),
+                                ),
+                                _menuCard(
+                                  context,
+                                  title: "تنبيهات المخزون",
+                                  icon: Iconsax.box,
+                                  onTap:
+                                      () => navigateTo(
+                                        context,
+                                        const LowStockProductsPage(),
+                                      ),
                                 ),
                               ],
                             ),

@@ -58,6 +58,8 @@ class Order {
   DateTime createdAt;
   int totalItems;
   int totalPrice;
+  int discountAmount;
+  int rewardDiscountAmount;
   String status;
   String deliveryType;
 
@@ -66,6 +68,8 @@ class Order {
     required this.createdAt,
     required this.totalItems,
     required this.totalPrice,
+    required this.discountAmount,
+    required this.rewardDiscountAmount,
     required this.status,
     required this.deliveryType,
   });
@@ -77,6 +81,8 @@ class Order {
     ),
     totalItems: json["totalItems"] ?? 0,
     totalPrice: json["totalPrice"] ?? 0,
+    discountAmount: json["discountAmount"] ?? 0,
+    rewardDiscountAmount: json["rewardDiscountAmount"] ?? 0,
     status: json["status"] ?? "",
     deliveryType: json["deliveryType"]?.toString() ?? "standard",
   );
@@ -86,6 +92,8 @@ class Order {
     "createdAt": createdAt.toIso8601String(),
     "totalItems": totalItems,
     "totalPrice": totalPrice,
+    "discountAmount": discountAmount,
+    "rewardDiscountAmount": rewardDiscountAmount,
     "status": status,
     "deliveryType": deliveryType,
   };

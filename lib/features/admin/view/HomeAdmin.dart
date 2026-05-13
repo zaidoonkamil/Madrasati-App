@@ -585,35 +585,6 @@ class HomeAdmin extends StatelessWidget {
                                                           ),
                                                         ),
                                                       ),
-                                                      SizedBox(width: 6),
-                                                      GestureDetector(
-                                                        onTap:
-                                                            () => _showEditProductDialog(
-                                                              context,
-                                                              cubit,
-                                                              cubit
-                                                                  .productsModel!
-                                                                  .products[index],
-                                                            ),
-                                                        child: Container(
-                                                          width: 35,
-                                                          height: 35,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                color:
-                                                                    appAccentColor,
-                                                                shape:
-                                                                    BoxShape
-                                                                        .circle,
-                                                              ),
-                                                          child: const Icon(
-                                                            Icons.edit,
-                                                            color:
-                                                                appTextPrimaryColor,
-                                                            size: 18,
-                                                          ),
-                                                        ),
-                                                      ),
                                                       SizedBox(width: 5),
                                                       Expanded(
                                                         child: Column(
@@ -723,6 +694,71 @@ class HomeAdmin extends StatelessWidget {
                                                       ),
                                                     ],
                                                   ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap:
+                                                            () => _showEditProductDialog(
+                                                              context,
+                                                              cubit,
+                                                              cubit
+                                                                  .productsModel!
+                                                                  .products[index],
+                                                            ),
+                                                        child: Container(
+                                                          width: 35,
+                                                          height: 35,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                color:
+                                                                    appAccentColor,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                              ),
+                                                          child: const Icon(
+                                                            Icons.edit,
+                                                            color:
+                                                                appTextPrimaryColor,
+                                                            size: 18,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+
+                                                      GestureDetector(
+                                                        onTap:
+                                                            () => _showMarketingProductsDialog(
+                                                              context,
+                                                              cubit,
+                                                              cubit
+                                                                  .productsModel!
+                                                                  .products[index],
+                                                            ),
+                                                        child: Container(
+                                                          width: 35,
+                                                          height: 35,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                color:
+                                                                    primaryColor,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                              ),
+                                                          child: const Icon(
+                                                            Icons
+                                                                .view_carousel_outlined,
+                                                            color: Colors.white,
+                                                            size: 18,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
 
                                                   const Spacer(),
                                                 ],
@@ -816,7 +852,6 @@ class _AdminToolsCard extends StatelessWidget {
               const Text(
                 'إظهار التواصل',
                 style: TextStyle(
-                  color: appTextPrimaryColor,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -855,16 +890,29 @@ void _showFaqAdminDialog(BuildContext context, AdminCubit cubit) {
                       faq['answer']?.toString() ?? '',
                       textAlign: TextAlign.end,
                     ),
-                    leading: IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: appDangerColor,
-                      ),
-                      onPressed:
-                          () => cubit.deleteFaq(
-                            context: context,
-                            faqId: faq['id'] as int,
+                    leading: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            color: primaryColor,
                           ),
+                          onPressed:
+                              () => _showEditFaqDialog(context, cubit, faq),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: appDangerColor,
+                          ),
+                          onPressed:
+                              () => cubit.deleteFaq(
+                                context: context,
+                                faqId: faq['id'] as int,
+                              ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -888,6 +936,83 @@ void _showFaqAdminDialog(BuildContext context, AdminCubit cubit) {
               child: const Text('إضافة'),
             ),
           ],
+        ),
+  );
+}
+
+void _showEditFaqDialog(
+  BuildContext pageContext,
+  AdminCubit cubit,
+  Map<String, dynamic> faq,
+) {
+  final q = TextEditingController(text: faq['question']?.toString() ?? '');
+  final a = TextEditingController(text: faq['answer']?.toString() ?? '');
+  bool isActive = faq['isActive'] != false;
+
+  showDialog(
+    context: pageContext,
+    builder:
+        (dialogContext) => StatefulBuilder(
+          builder:
+              (builderContext, setState) => AlertDialog(
+                backgroundColor: appSurface(builderContext),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                title: const Text(
+                  'تعديل السؤال',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _EditProductField(controller: q, hint: 'السؤال'),
+                      const SizedBox(height: 10),
+                      _EditProductField(
+                        controller: a,
+                        hint: 'الجواب',
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 10),
+                      SwitchListTile(
+                        value: isActive,
+                        activeColor: appAccentColor,
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text(
+                          'إظهار السؤال للمستخدم',
+                          textAlign: TextAlign.end,
+                        ),
+                        onChanged: (value) => setState(() => isActive = value),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('إلغاء'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appAccentColor,
+                      foregroundColor: appTextPrimaryColor,
+                    ),
+                    onPressed: () {
+                      cubit.updateFaq(
+                        context: pageContext,
+                        faqId: faq['id'] as int,
+                        question: q.text,
+                        answer: a.text,
+                        isActive: isActive,
+                      );
+                      Navigator.pop(dialogContext);
+                    },
+                    child: const Text('حفظ'),
+                  ),
+                ],
+              ),
         ),
   );
 }
@@ -1101,6 +1226,183 @@ void _confirmDeleteCoupon(
   );
 }
 
+void _showMarketingProductsDialog(
+  BuildContext pageContext,
+  AdminCubit cubit,
+  dynamic product,
+) {
+  final searchController = TextEditingController();
+  final selected = <int>{};
+  var initialized = false;
+  var isSearching = false;
+  var searchResults = <dynamic>[];
+
+  showDialog(
+    context: pageContext,
+    builder:
+        (dialogContext) => FutureBuilder<List<int>>(
+          future: cubit.getMarketingProductIds(
+            context: pageContext,
+            productId: product.id as int,
+          ),
+          builder: (builderContext, snapshot) {
+            if (!initialized && snapshot.hasData) {
+              selected.addAll(snapshot.data!);
+              initialized = true;
+            }
+
+            return StatefulBuilder(
+              builder:
+                  (innerContext, setState) => AlertDialog(
+                    backgroundColor: appSurface(innerContext),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    title: Text(
+                      'منتجات تظهر تحت هذا المنتج',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        color: appTextPrimary(innerContext),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    content: SizedBox(
+                      width: double.maxFinite,
+                      child:
+                          snapshot.connectionState == ConnectionState.waiting
+                              ? const SizedBox(
+                                height: 120,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : searchResults.isEmpty
+                              ? const Text(
+                                'لا توجد منتجات للاختيار',
+                                textAlign: TextAlign.center,
+                              )
+                              : ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: searchResults.length,
+                                separatorBuilder: (_, __) => const Divider(),
+                                itemBuilder: (_, index) {
+                                  final item = searchResults[index];
+                                  final isSelected = selected.contains(item.id);
+                                  return CheckboxListTile(
+                                    value: isSelected,
+                                    activeColor: appAccentColor,
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                    onChanged: (_) {
+                                      setState(() {
+                                        if (isSelected) {
+                                          selected.remove(item.id);
+                                        } else {
+                                          selected.add(item.id);
+                                        }
+                                      });
+                                    },
+                                    title: Text(
+                                      item.title,
+                                      textAlign: TextAlign.end,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    subtitle: Text(
+                                      'ID: ${item.id}',
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  );
+                                },
+                              ),
+                    ),
+                    actions: [
+                      SizedBox(
+                        width: double.maxFinite,
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: appAccentColor,
+                                foregroundColor: appTextPrimaryColor,
+                              ),
+                              onPressed:
+                                  isSearching
+                                      ? null
+                                      : () async {
+                                        setState(() => isSearching = true);
+                                        final results = await cubit
+                                            .searchMarketingProducts(
+                                              context: pageContext,
+                                              query: searchController.text,
+                                              currentProductId:
+                                                  product.id as int,
+                                            );
+                                        setState(() {
+                                          searchResults = results;
+                                          isSearching = false;
+                                        });
+                                      },
+                              child:
+                                  isSearching
+                                      ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : const Text('بحث'),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _EditProductField(
+                                controller: searchController,
+                                hint: 'ابحث بالـ ID أو اسم المنتج',
+                                requiredField: false,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.maxFinite,
+                        child: Text(
+                          'المختارة: ${selected.length}',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: appTextMuted(innerContext),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('إلغاء'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appAccentColor,
+                          foregroundColor: appTextPrimaryColor,
+                        ),
+                        onPressed: () {
+                          cubit.marketingProductIds = selected.toList();
+                          cubit.updateMarketingProducts(
+                            context: pageContext,
+                            productId: product.id as int,
+                          );
+                          Navigator.pop(dialogContext);
+                        },
+                        child: const Text('حفظ'),
+                      ),
+                    ],
+                  ),
+            );
+          },
+        ),
+  );
+}
+
 void _showEditProductDialog(
   BuildContext context,
   AdminCubit cubit,
@@ -1112,6 +1414,9 @@ void _showEditProductDialog(
   );
   final priceController = TextEditingController(text: product.price.toString());
   final stockController = TextEditingController(text: product.stock.toString());
+  final lowStockAlertController = TextEditingController(
+    text: product.lowStockAlert.toString(),
+  );
   final colorsController = TextEditingController(
     text: (product.colors as List).join(', '),
   );
@@ -1160,6 +1465,12 @@ void _showEditProductDialog(
                   ),
                   const SizedBox(height: 10),
                   _EditProductField(
+                    controller: lowStockAlertController,
+                    hint: 'حد تنبيه المخزون',
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 10),
+                  _EditProductField(
                     controller: descriptionController,
                     hint: 'الوصف',
                     maxLines: 4,
@@ -1200,6 +1511,7 @@ void _showEditProductDialog(
                   description: descriptionController.text.trim(),
                   price: priceController.text.trim(),
                   stock: stockController.text.trim(),
+                  lowStockAlert: lowStockAlertController.text.trim(),
                   colors: colorsController.text.trim(),
                   sizes: sizesController.text.trim(),
                   context: context,

@@ -21,6 +21,9 @@ class AddProducts extends StatelessWidget {
   static TextEditingController descController = TextEditingController();
   static TextEditingController priceController = TextEditingController();
   static TextEditingController stockController = TextEditingController();
+  static TextEditingController lowStockAlertController = TextEditingController(
+    text: '3',
+  );
   static TextEditingController colorsController = TextEditingController();
   static TextEditingController sizesController = TextEditingController();
   static TextEditingController categoryIdController = TextEditingController();
@@ -43,6 +46,7 @@ class AddProducts extends StatelessWidget {
             descController.clear();
             priceController.clear();
             stockController.clear();
+            lowStockAlertController.text = '3';
             colorsController.clear();
             sizesController.clear();
             categoryIdController.clear();
@@ -169,6 +173,18 @@ class AddProducts extends StatelessWidget {
                               ),
                               const SizedBox(height: 16),
                               CustomTextField(
+                                controller: lowStockAlertController,
+                                hintText: 'حد تنبيه المخزون',
+                                keyboardType: TextInputType.number,
+                                validate: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'رجاءً أدخل حد التنبيه';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
                                 controller: mainCategoryNameController,
                                 hintText: 'القسم الرئيسي',
                                 keyboardType: TextInputType.none,
@@ -243,6 +259,9 @@ class AddProducts extends StatelessWidget {
                                           desc: descController.text.trim(),
                                           price: priceController.text.trim(),
                                           stock: stockController.text.trim(),
+                                          lowStockAlert:
+                                              lowStockAlertController.text
+                                                  .trim(),
                                           categoryId:
                                               categoryIdController.text.trim(),
                                           colors: colorsController.text.trim(),

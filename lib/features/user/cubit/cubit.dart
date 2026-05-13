@@ -120,9 +120,11 @@ class UserCubit extends Cubit<UserStates> {
 
   String? appliedCouponCode;
   int couponDiscount = 0;
+  int rewardDiscount = 0;
+  String? rewardMessage;
 
   int getFinalTotalPrice() {
-    final total = getTotalPrice() - couponDiscount;
+    final total = getTotalPrice() - couponDiscount - rewardDiscount;
     return total < 0 ? 0 : total;
   }
 
@@ -130,6 +132,41 @@ class UserCubit extends Cubit<UserStates> {
     appliedCouponCode = null;
     couponDiscount = 0;
     emit(ValidationState());
+  }
+
+  List<Map<String, dynamic>> _basketRewardItems() {
+    return basketModel
+        .map((item) => {'productId': item.productId, 'quantity': item.quantity})
+        .toList();
+  }
+
+  void getRewardPreview({required BuildContext context}) {
+    if (id.isEmpty || basketModel.isEmpty) {
+      rewardDiscount = 0;
+      rewardMessage = null;
+      emit(ValidationState());
+      return;
+    }
+
+    emit(RewardPreviewLoadingState());
+    DioHelper.postData(
+          url: '/orders/$id/reward-preview',
+          data: {'products': _basketRewardItems()},
+        )
+        .then((value) {
+          final discount = value.data['rewardDiscountAmount'];
+          rewardDiscount =
+              discount is num
+                  ? discount.round()
+                  : int.tryParse('$discount') ?? 0;
+          rewardMessage = value.data['message']?.toString();
+          emit(RewardPreviewSuccessState());
+        })
+        .catchError((error) {
+          rewardDiscount = 0;
+          rewardMessage = null;
+          emit(RewardPreviewErrorState());
+        });
   }
 
   void applyCoupon({required BuildContext context, required String code}) {
@@ -190,12 +227,15 @@ class UserCubit extends Cubit<UserStates> {
     emit(AddState());
   }
 
-  void addBasket({required int index}) {
+  void addBasket({required int index, required BuildContext context}) {
     if (basketModel[index].quantity >= basketModel[index].product.stock) {
       return;
     }
     basketModel[index].quantity++;
     checkIfChanged(index);
+    rewardDiscount = 0;
+    rewardMessage = null;
+    getRewardPreview(context: context);
     emit(AddState());
   }
 
@@ -203,6 +243,9 @@ class UserCubit extends Cubit<UserStates> {
     if (basketModel[index].quantity > 1) {
       basketModel[index].quantity--;
       checkIfChanged(index);
+      rewardDiscount = 0;
+      rewardMessage = null;
+      getRewardPreview(context: context);
     } else {
       showToastInfo(text: 'اقل عدد للطلب', context: context);
     }
@@ -440,6 +483,7 @@ class UserCubit extends Cubit<UserStates> {
               (value.data as List)
                   .map((cat) => BsketModel.fromJson(cat))
                   .toList();
+          getRewardPreview(context: context);
           emit(GetBasketSuccessState());
         })
         .catchError((error) {
@@ -459,6 +503,7 @@ class UserCubit extends Cubit<UserStates> {
     DioHelper.deleteData(url: '/basket/$id/item/$idItem')
         .then((value) {
           basketModel.removeWhere((ads) => ads.id.toString() == idItem);
+          getRewardPreview(context: context);
           showToastSuccess(text: 'تم الحذف بنجاح', context: context);
           emit(DeleteBasketSuccessState());
         })
@@ -686,6 +731,13 @@ class UserCubit extends Cubit<UserStates> {
           },
         )
         .then((value) {
+          final reward = value.data['rewardDiscountAmount'];
+          rewardDiscount =
+              reward is num ? reward.round() : int.tryParse('$reward') ?? 0;
+          rewardMessage = value.data['rewardMessage']?.toString();
+          if (rewardDiscount > 0 && rewardMessage != null) {
+            showToastSuccess(text: rewardMessage!, context: context);
+          }
           emit(AddOrderSuccessState());
         })
         .catchError((error) {
@@ -754,6 +806,27 @@ class UserCubit extends Cubit<UserStates> {
   }
 
   GetProductsDetails? getProductsDetailsModel;
+  List<Product> marketingProducts = [];
+
+  void getMarketingProducts({
+    required BuildContext context,
+    required String productId,
+  }) {
+    emit(GetMarketingProductsLoadingState());
+    final userQuery = id.isEmpty ? '' : '?userId=$id';
+    DioHelper.getData(url: '/products/$productId/marketing$userQuery')
+        .then((value) {
+          marketingProducts = ProductsModel.fromJson(value.data).products;
+          emit(GetMarketingProductsSuccessState());
+        })
+        .catchError((error) {
+          if (error is DioError) {
+            showToastError(text: error.toString(), context: context);
+          }
+          emit(GetMarketingProductsErrorState());
+        });
+  }
+
   void getProductsDetails({
     required BuildContext context,
     required String sellerId,

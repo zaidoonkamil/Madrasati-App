@@ -38,6 +38,7 @@ class Product {
   String? descriptionAr;
   int price;
   int stock;
+  int lowStockAlert;
   List<String> colors;
   List<String> sizes;
   List<String> images;
@@ -55,6 +56,7 @@ class Product {
     this.descriptionAr,
     required this.price,
     required this.stock,
+    required this.lowStockAlert,
     required this.colors,
     required this.sizes,
     required this.images,
@@ -108,6 +110,7 @@ class Product {
             : _asString(json["description_ar"]),
     price: _asInt(json["price"]),
     stock: _asInt(json["stock"]),
+    lowStockAlert: _asInt(json["lowStockAlert"]),
     colors: _asStringList(json["colors"]),
     sizes: _asStringList(json["sizes"]),
     images: List<String>.from((json["images"] ?? []).map((x) => x.toString())),
@@ -126,6 +129,7 @@ class Product {
     "description_ar": descriptionAr,
     "price": price,
     "stock": stock,
+    "lowStockAlert": lowStockAlert,
     "colors": colors,
     "sizes": sizes,
     "images": List<dynamic>.from(images.map((x) => x)),

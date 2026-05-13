@@ -88,6 +88,10 @@ class Basket extends StatelessWidget {
                                 controller: couponController,
                                 cubit: cubit,
                               ),
+                              if (cubit.rewardDiscount > 0) ...[
+                                const SizedBox(height: 10),
+                                _RewardCard(cubit: cubit),
+                              ],
                               const SizedBox(height: 14),
                               ListView.separated(
                                 shrinkWrap: true,
@@ -231,6 +235,25 @@ class _SummaryCard extends StatelessWidget {
               ),
             ),
           ],
+          if (cubit.rewardDiscount > 0) ...[
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: _accentAmber.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _accentAmber.withValues(alpha: 0.35)),
+              ),
+              child: Text(
+                'هدية ${NumberFormat('#,###').format(cubit.rewardDiscount)}',
+                style: const TextStyle(
+                  color: _accentAmber,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
 
           const Spacer(),
 
@@ -366,6 +389,65 @@ class _CouponCard extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RewardCard extends StatelessWidget {
+  const _RewardCard({required this.cubit});
+
+  final UserCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _accentAmber.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _accentAmber.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text(
+                  'هدية مشتريات',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  cubit.rewardMessage ??
+                      'حصلت على خصم ${NumberFormat('#,###').format(cubit.rewardDiscount)} د.ع',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: appTextMuted(context),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: _accentAmber.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Iconsax.gift, color: _accentAmber),
+          ),
+
         ],
       ),
     );
@@ -554,7 +636,11 @@ class _BasketItem extends StatelessWidget {
                           ),
                           _QtyBtn(
                             icon: Icons.add,
-                            onTap: () => cubit.addBasket(index: index),
+                            onTap:
+                                () => cubit.addBasket(
+                                  index: index,
+                                  context: context,
+                                ),
                             filled: true,
                           ),
                         ],

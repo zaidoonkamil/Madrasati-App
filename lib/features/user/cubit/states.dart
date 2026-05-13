@@ -96,8 +96,20 @@ class ApplyCouponSuccessState extends UserStates {}
 
 class ApplyCouponErrorState extends UserStates {}
 
+class RewardPreviewLoadingState extends UserStates {}
+
+class RewardPreviewSuccessState extends UserStates {}
+
+class RewardPreviewErrorState extends UserStates {}
+
 class DeleteProductLoadingState extends UserStates {}
 
 class DeleteProductSuccessState extends UserStates {}
 
 class DeleteProductErrorState extends UserStates {}
+
+class GetMarketingProductsLoadingState extends UserStates {}
+
+class GetMarketingProductsSuccessState extends UserStates {}
+
+class GetMarketingProductsErrorState extends UserStates {}
