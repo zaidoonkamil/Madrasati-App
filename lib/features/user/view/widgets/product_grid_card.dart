@@ -1,3 +1,4 @@
+import 'package:iconsax/iconsax.dart';
 import 'package:madrasati_app/core/%20navigation/navigation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
@@ -270,10 +271,10 @@ class UserProductGridCard extends StatelessWidget {
                                 stock > 0 ? appAccentColor : appTextMutedColor,
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Center(
-                            child: FaIcon(
-                              FontAwesomeIcons.basketShopping,
-                              size: 15,
+                          child: Center(
+                            child: Icon(
+                              Iconsax.shopping_cart,
+                              size: 18,
                               color: Colors.white,
                             ),
                           ),
