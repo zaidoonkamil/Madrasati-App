@@ -114,7 +114,7 @@ class UserCubit extends Cubit<UserStates> {
   String? selectedProductSize;
 
   void selectProductColor(String value) {
-    selectedProductColor = value;
+    selectedProductColor = selectedProductColor == value ? null : value;
     emit(ValidationState());
   }
 
@@ -208,7 +208,7 @@ class UserCubit extends Cubit<UserStates> {
   }
 
   void selectProductSize(String value) {
-    selectedProductSize = value;
+    selectedProductSize = selectedProductSize == value ? null : value;
     emit(ValidationState());
   }
 
